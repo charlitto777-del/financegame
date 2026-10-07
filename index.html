@@ -125,6 +125,15 @@ details.doc>.block{gap:14px}
 .bar{height:6px;background:var(--sunk);border-radius:3px;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--accent);width:0}
 .item{font:700 1.3rem var(--display)}
+
+.pm{display:none;flex:none;align-self:flex-end;font:600 1rem var(--mono);width:44px;height:44px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:8;font:600 .92rem var(--body);padding:12px 16px;border-radius:999px;border:0;background:var(--ink);color:var(--bg);cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+.docs{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column}
+.docs>header{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 16px 10px;border-bottom:1px solid var(--line)}
+.docs>.body{overflow:auto;padding:16px;display:flex;flex-direction:column;gap:14px;-webkit-overflow-scrolling:touch}
+.docs>.body>*{max-width:1100px;width:100%;margin-inline:auto;flex:none}
+@media (pointer:coarse){ .pm{display:block} .in{flex-wrap:wrap} .in .f{flex:1 1 34%} .in .v{flex:1 1 0;min-height:44px;font-size:.9rem} .in input{font-size:16px;padding:10px 8px} .btn.sm{padding:10px 12px;font-size:.88rem} }
+@media (max-width:600px){ h2{font-size:1.25rem} .lede{font-size:.95rem} .wrap{padding-block:12px 110px} .caselist{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x proximity} .caselist .chip{flex:none;scroll-snap-align:start} .ln{padding:10px 12px} .lb{font-size:.95rem} table{font-size:.8rem} .card{padding:14px} .sheet>header{padding:10px 12px} .colh{position:sticky;top:calc(env(safe-area-inset-top,0px) + 50px);z-index:2} }
 @media (max-width:860px){ .band{grid-template-columns:1fr} .col{border-right:0;border-bottom:1px solid var(--line)} .col:last-child{border-bottom:0} }
 @media (max-width:520px){ th,td{padding:5px 7px} }
 @media (prefers-reduced-motion:no-preference){ .bar i{transition:width .25s} .lesson{transition:box-shadow .3s} }
@@ -152,7 +161,7 @@ details.doc>.block{gap:14px}
   <div class="block">
     <h2>Choisis un sujet</h2>
     <div class="caselist" id="caselist"></div>
-    <p class="muted">Une case laissée vide compte pour zéro. La touche Entrée valide la ligne et passe à la suivante. Tes saisies sont gardées sur cet appareil.</p>
+    <p class="muted">Une case laissée vide compte pour zéro. Le bouton « Documents du sujet » en bas à droite rouvre le compte de résultat et les bilans sans quitter ta ligne. La touche Entrée valide la ligne et passe à la suivante. Tes saisies sont gardées sur cet appareil.</p>
   </div>
   <div id="casebody" class="panel"></div>
 </section>
@@ -490,6 +499,8 @@ Total passif = Ressources stables + Passif circulant + Trésorerie passive
 </section>
 </div>
 
+<button class="fab" id="fab">Documents du sujet</button>
+<div class="docs" id="docs" hidden><header><h3>Documents du sujet</h3><button class="btn sm" id="docsclose">Fermer</button></header><div class="body" id="docsbody"></div></div>
 <div class="back" id="back" hidden><button id="backbtn">← Revenir à ma ligne dans l'exercice</button></div>
 
 <script>
@@ -505,6 +516,7 @@ const TABS=['exos','cours','tri','quiz','jourj'];
 function show(t){ if(!TABS.includes(t))t='exos';
   TABS.forEach(x=>{$('#p-'+x).hidden=x!==t});
   $$('#tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===t));
+  const fb=document.getElementById('fab');if(fb)fb.hidden=t!=='exos';
   store.set('tab',t) }
 $('#tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(b){show(b.dataset.t);window.scrollTo(0,0)}});
 
@@ -772,6 +784,12 @@ function bfSpec(B){
 
 /* ---------- Rendu ---------- */
 let cur=null;
+const IM=(window.matchMedia&&matchMedia('(pointer:coarse)').matches)?'decimal':'text';
+let lastInp=null;
+document.addEventListener('focusin',e=>{if(e.target.matches&&e.target.matches('.ln input'))lastInp=e.target});
+function docsHTML(k){let h='';if(k.cr)h+='<div class="tw">'+crTable(k)+'</div>';if(k.bilan)h+=k.bilan.map((b,i)=>bilanTable(b,k.years[i])).join('');return h}
+$('#fab').addEventListener('click',()=>{const k=CASES.find(c=>c.id===cur);$('#docsbody').innerHTML=docsHTML(k);$('#docs').hidden=false;$('#docsbody').scrollTop=0});
+$('#docsclose').addEventListener('click',()=>{$('#docs').hidden=true});
 function caseList(){$('#caselist').innerHTML=CASES.map(k=>'<button class="chip" aria-pressed="'+(cur===k.id)+'" data-id="'+k.id+'">'+esc(k.name)+'<small>'+esc(k.tag)+'</small></button>').join('')}
 $('#caselist').addEventListener('click',e=>{const b=e.target.closest('button');if(b)openCase(b.dataset.id)});
 
@@ -793,8 +811,8 @@ function bilanTable(b,y){const ta=b.actif.reduce((s,r)=>s+r[1],0),tm=b.actif.red
 
 function lineHTML(L,pre,k,objs){const id=pre+'-'+L.id;LINES[id]=Object.assign({},L,{years:k.years,objs,pre});
  return '<div class="ln '+(L.kind||'')+' lv'+(L.lvl||0)+'" id="'+id+'"><div class="lb">'+(L.sg?'<span class="sg">'+L.sg+'</span>':'')+esc(L.label)+'</div><div class="in">'+
-  k.years.map((y,i)=>'<label class="f"><span>'+y+'</span><input inputmode="text" autocomplete="off" id="'+id+'-'+i+'" value="'+esc(store.get('v:'+id+'-'+i)||'')+'"></label>').join('')+
-  '<button class="v" data-val="'+id+'" aria-label="Valider la ligne '+esc(L.label)+'">Valider</button></div><div class="fb" hidden></div></div>'}
+  k.years.map((y,i)=>'<label class="f"><span>'+y+'</span><input inputmode="'+IM+'" autocomplete="off" id="'+id+'-'+i+'" value="'+esc(store.get('v:'+id+'-'+i)||'')+'"></label>').join('')+
+  '<button class="pm" data-pm="'+id+'" aria-label="Changer le signe">±</button><button class="v" data-val="'+id+'" aria-label="Valider la ligne '+esc(L.label)+'">Valider</button></div><div class="fb" hidden></div></div>'}
 const colHTML=(title,lines,pre,k,objs,cls)=>'<div class="col '+(cls||'')+'"><div class="colh"><span>'+title+'</span></div>'+lines.map(L=>lineHTML(L,pre,k,objs)).join('')+'</div>';
 function sheet(pre,title,inner){return '<div class="sheet" data-sheet="'+pre+'"><header><h3>'+title+'</h3><span class="row"><span class="prog" id="'+pre+'-prog"></span><button class="btn ghost sm" data-all="'+pre+'">Valider tout le tableau</button></span></header>'+inner+'</div>'}
 
@@ -832,6 +850,7 @@ function validate(id,quiet){const L=LINES[id],row=document.getElementById(id);if
  if(!quiet)progress();return ok}
 function progress(){$$('.sheet').forEach(s=>{const pre=s.dataset.sheet,ids=Object.keys(LINES).filter(i=>LINES[i].pre===pre),n=ids.filter(i=>OKS.has(i)).length;$('#'+pre+'-prog').textContent=n+' / '+ids.length+' lignes justes'})}
 $('#casebody').addEventListener('click',e=>{const t=e.target;
+ if(t.dataset.pm){const row=document.getElementById(t.dataset.pm),i=(lastInp&&row.contains(lastInp))?lastInp:$('input',row);let v=i.value.trim();i.value=/^[-−]/.test(v)?v.slice(1):'-'+v;i.dispatchEvent(new Event('input',{bubbles:true}));i.focus();return}
  if(t.dataset.val){validate(t.dataset.val);return}
  if(t.dataset.all){Object.keys(LINES).filter(i=>LINES[i].pre===t.dataset.all).forEach(i=>validate(i,true));progress();const ko=$('.sheet[data-sheet="'+t.dataset.all+'"] .ln.ko');if(ko)ko.scrollIntoView({block:'center'});return}
  if(t.dataset.go){goCourse(t.dataset.go,t.dataset.from);return}
