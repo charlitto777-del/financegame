@@ -127,10 +127,10 @@ details.doc>.block{gap:14px}
 .item{font:700 1.3rem var(--display)}
 
 .pm{display:none;flex:none;align-self:flex-end;font:600 1rem var(--mono);width:44px;height:44px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
-.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:8;font:600 .92rem var(--body);padding:12px 16px;border-radius:999px;border:0;background:var(--ink);color:var(--bg);cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:30;font:600 .92rem var(--body);padding:12px 16px;border-radius:999px;border:0;background:var(--ink);color:var(--bg);cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.25)}
 .docs{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column}
 .docs>header{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 16px 10px;border-bottom:1px solid var(--line)}
-.docs>.body{overflow:auto;padding:16px;display:flex;flex-direction:column;gap:14px;-webkit-overflow-scrolling:touch}
+.docs>.body{overflow:auto;padding:16px 16px 96px;display:flex;flex-direction:column;gap:14px;-webkit-overflow-scrolling:touch}
 .docs>.body>*{max-width:1100px;width:100%;margin-inline:auto;flex:none}
 @media (pointer:coarse){ .pm{display:block} .in{flex-wrap:wrap} .in .f{flex:1 1 34%} .in .v{flex:1 1 0;min-height:44px;font-size:.9rem} .in input{font-size:16px;padding:10px 8px} .btn.sm{padding:10px 12px;font-size:.88rem} }
 @media (max-width:600px){ h2{font-size:1.25rem} .lede{font-size:.95rem} .wrap{padding-block:12px 110px} .caselist{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x proximity} .caselist .chip{flex:none;scroll-snap-align:start} .ln{padding:10px 12px} .lb{font-size:.95rem} table{font-size:.8rem} .card{padding:14px} .sheet>header{padding:10px 12px} .colh{position:sticky;top:calc(env(safe-area-inset-top,0px) + 50px);z-index:2} }
@@ -500,7 +500,7 @@ Total passif = Ressources stables + Passif circulant + Trésorerie passive
 </div>
 
 <button class="fab" id="fab">Documents du sujet</button>
-<div class="docs" id="docs" hidden><header><h3>Documents du sujet</h3><button class="btn sm" id="docsclose">Fermer</button></header><div class="body" id="docsbody"></div></div>
+<div class="docs" id="docs" hidden><header><h3>Documents du sujet</h3></header><div class="body" id="docsbody"></div></div>
 <div class="back" id="back" hidden><button id="backbtn">← Revenir à ma ligne dans l'exercice</button></div>
 
 <script>
@@ -788,8 +788,8 @@ const IM=(window.matchMedia&&matchMedia('(pointer:coarse)').matches)?'decimal':'
 let lastInp=null;
 document.addEventListener('focusin',e=>{if(e.target.matches&&e.target.matches('.ln input'))lastInp=e.target});
 function docsHTML(k){let h='';if(k.cr)h+='<div class="tw">'+crTable(k)+'</div>';if(k.bilan)h+=k.bilan.map((b,i)=>bilanTable(b,k.years[i])).join('');return h}
-$('#fab').addEventListener('click',()=>{const k=CASES.find(c=>c.id===cur);$('#docsbody').innerHTML=docsHTML(k);$('#docs').hidden=false;$('#docsbody').scrollTop=0});
-$('#docsclose').addEventListener('click',()=>{$('#docs').hidden=true});
+$('#fab').addEventListener('click',()=>{const d=$('#docs'),b=$('#fab');if(!d.hidden){d.hidden=true;b.textContent='Documents du sujet';return}const k=CASES.find(c=>c.id===cur);$('#docsbody').innerHTML=docsHTML(k);d.hidden=false;$('#docsbody').scrollTop=0;b.textContent='Fermer les documents'});
+
 function caseList(){$('#caselist').innerHTML=CASES.map(k=>'<button class="chip" aria-pressed="'+(cur===k.id)+'" data-id="'+k.id+'">'+esc(k.name)+'<small>'+esc(k.tag)+'</small></button>').join('')}
 $('#caselist').addEventListener('click',e=>{const b=e.target.closest('button');if(b)openCase(b.dataset.id)});
 
