@@ -1,0 +1,949 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}</style>
+<title>Révision Structure Financière</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout : un cahier de travail. Onglets collants, grilles d'examen en colonnes Produits / Charges / Solde, montants en mono. */
+:root{
+  --bg:#F2F5F3; --surface:#FFFFFF; --sunk:#E7ECE9; --ink:#13231E; --muted:#56655F; --line:#CBD5D0;
+  --accent:#1F4FD8; --accent-soft:#E3EAFC; --on-accent:#FFFFFF;
+  --good:#12754A; --good-soft:#DDF2E7; --bad:#B3261E; --bad-soft:#FBE4E2; --warn:#8A5A00; --warn-soft:#FBEFD2;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0F1614; --surface:#18221F; --sunk:#111A17; --ink:#E6EEEA; --muted:#9BABA4; --line:#2C3A35;
+  --accent:#8FAEFF; --accent-soft:#1B2747; --on-accent:#0B1430;
+  --good:#5FD39B; --good-soft:#12301F; --bad:#FF8A80; --bad-soft:#3A1917; --warn:#F2C25A; --warn-soft:#33280E; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0F1614; --surface:#18221F; --sunk:#111A17; --ink:#E6EEEA; --muted:#9BABA4; --line:#2C3A35;
+  --accent:#8FAEFF; --accent-soft:#1B2747; --on-accent:#0B1430;
+  --good:#5FD39B; --good-soft:#12301F; --bad:#FF8A80; --bad-soft:#3A1917; --warn:#F2C25A; --warn-soft:#33280E; color-scheme:dark }
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:20px 96px}
+h1,h2,h3,h4{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(1.6rem,4.2vw,2.3rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.45rem;font-weight:700}
+h3{font-size:1.08rem;font-weight:700}
+h4{font-size:.95rem;font-weight:700}
+p{margin:0;max-width:70ch}
+.lede{color:var(--muted);margin-top:8px}
+header.top{display:flex;flex-direction:column;gap:4px;margin-bottom:16px}
+.eyebrow{font-size:.75rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:flex;gap:6px;overflow-x:auto;border-bottom:1px solid var(--line);margin-bottom:24px}
+nav.tabs button{flex:none;font:600 .92rem var(--body);padding:8px 14px;border-radius:999px;border:1px solid transparent;background:transparent;color:var(--muted);cursor:pointer}
+nav.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+nav.tabs button:hover:not([aria-selected="true"]){border-color:var(--line);color:var(--ink)}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+section.panel,.panel{display:flex;flex-direction:column;gap:28px}
+.block{display:flex;flex-direction:column;gap:12px;min-width:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px}
+.formula{font-family:var(--mono);font-size:.88rem;background:var(--sunk);border-radius:6px;padding:10px 12px;overflow-x:auto;white-space:pre-wrap}
+.formula b{color:var(--accent);font-weight:500}
+ul,ol{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;max-width:70ch}
+.note{background:var(--warn-soft);border-radius:8px;padding:10px 12px;font-size:.93rem}
+.note strong{color:var(--warn)}
+.lesson{scroll-margin-top:72px}
+.lesson.flash{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.lesson .where{font-size:.93rem;border-left:3px solid var(--accent);padding-left:10px}
+.toc{display:flex;flex-wrap:wrap;gap:6px}
+.toc a{font-size:.85rem;padding:4px 10px;border:1px solid var(--line);border-radius:999px;color:var(--ink);text-decoration:none;background:var(--surface)}
+.toc a:hover{border-color:var(--accent)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:6px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);background:var(--sunk);font-weight:600}
+td.n,th.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.sec td{background:var(--sunk);font-weight:600;font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+tr.tot td{font-weight:600}
+.caselist{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font:500 .9rem var(--body);padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;text-align:left}
+.chip small{display:block;color:var(--muted);font-size:.74rem}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.btn{font:600 .92rem var(--body);padding:9px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.sm{font-size:.82rem;padding:6px 10px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.muted{color:var(--muted);font-size:.9rem}
+details.doc{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:12px 14px}
+details.doc>summary{cursor:pointer;font-weight:600}
+details.doc[open]>summary{margin-bottom:12px}
+details.doc>.block{gap:14px}
+
+/* ----- Grilles d'examen ----- */
+.sheet{border:1px solid var(--line);border-radius:10px;background:var(--surface);overflow:hidden}
+.sheet>header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid var(--line)}
+.prog{font:500 .85rem var(--mono);color:var(--muted)}
+.band{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));border-bottom:2px solid var(--line)}
+.band:last-child{border-bottom:0}
+.col{min-width:0;border-right:1px solid var(--line);display:flex;flex-direction:column}
+.col:last-child{border-right:0}
+.col.solde{background:var(--accent-soft)}
+.colh{display:flex;justify-content:space-between;gap:8px;padding:6px 10px;background:var(--sunk);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.col.solde .colh{background:transparent}
+.ln{padding:8px 10px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:6px;scroll-margin-top:72px}
+.colh+.ln{border-top:0}
+.ln.tot .lb,.ln.big .lb{font-weight:600}
+.ln.big{background:var(--sunk)}
+.col.solde .ln .lb{font-family:var(--display);font-weight:700}
+.ln.lv1 .lb{padding-left:12px}
+.ln.lv2 .lb{padding-left:24px}
+.lb{font-size:.88rem;line-height:1.3}
+.lb .sg{font-family:var(--mono);color:var(--accent);margin-right:6px}
+.in{display:flex;gap:6px;align-items:center}
+.in .f{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.in .f span{font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.in input{width:100%;min-width:0;font:400 .92rem var(--mono);text-align:right;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)}
+.in input.ok{border-color:var(--good);background:var(--good-soft)}
+.in input.ko{border-color:var(--bad);background:var(--bad-soft)}
+.in .v{flex:none;align-self:flex-end;font:600 .78rem var(--body);padding:7px 9px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.in .v:hover{border-color:var(--accent);color:var(--accent)}
+.ln.ok .v{border-color:var(--good);color:var(--good);background:var(--good-soft)}
+.ln.ko .v{border-color:var(--bad);color:var(--bad);background:var(--bad-soft)}
+.fb{font-size:.86rem;background:var(--bad-soft);border-radius:6px;padding:8px 10px;display:flex;flex-direction:column;gap:8px}
+.fb strong{color:var(--bad)}
+.fb .calc{font-family:var(--mono);font-size:.8rem;background:var(--surface);border-radius:4px;padding:6px 8px;overflow-wrap:anywhere;display:flex;flex-direction:column;gap:2px}
+.back{position:fixed;left:0;right:0;bottom:0;z-index:9;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:var(--ink);display:flex;justify-content:center}
+.back button{font:600 .95rem var(--body);background:var(--bg);color:var(--ink);border:0;border-radius:8px;padding:10px 18px;cursor:pointer}
+
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{font:400 .97rem var(--body);text-align:left;padding:11px 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.ok{border-color:var(--good);background:var(--good-soft)}
+.opt.ko{border-color:var(--bad);background:var(--bad-soft)}
+.opts.wrapx{flex-direction:row;flex-wrap:wrap}
+.why{background:var(--sunk);border-radius:8px;padding:10px 12px;font-size:.94rem}
+.bar{height:6px;background:var(--sunk);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0}
+.item{font:700 1.3rem var(--display)}
+@media (max-width:860px){ .band{grid-template-columns:1fr} .col{border-right:0;border-bottom:1px solid var(--line)} .col:last-child{border-bottom:0} }
+@media (max-width:520px){ th,td{padding:5px 7px} }
+@media (prefers-reduced-motion:no-preference){ .bar i{transition:width .25s} .lesson{transition:box-shadow .3s} }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <span class="eyebrow">Centrale Lille · Structure financière de l'entreprise</span>
+  <h1>SIG, CAF et bilan fonctionnel : les grilles de l'examen à remplir</h1>
+  <p class="lede">Chaque exercice reprend les trois tableaux du sujet. Tu valides ligne par ligne ; en cas d'erreur, un bouton t'emmène au point de cours qui explique la ligne, puis te ramène où tu en étais.</p>
+</header>
+
+<nav class="tabs" role="tablist" id="tabs">
+  <button role="tab" data-t="exos" aria-selected="true">Exercices</button>
+  <button role="tab" data-t="cours" aria-selected="false">Cours</button>
+  <button role="tab" data-t="tri" aria-selected="false">Tri des postes</button>
+  <button role="tab" data-t="quiz" aria-selected="false">Quiz</button>
+  <button role="tab" data-t="jourj" aria-selected="false">Jour J</button>
+</nav>
+
+<!-- ================= EXERCICES ================= -->
+<section class="panel" id="p-exos">
+  <div class="block">
+    <h2>Choisis un sujet</h2>
+    <div class="caselist" id="caselist"></div>
+    <p class="muted">Une case laissée vide compte pour zéro. La touche Entrée valide la ligne et passe à la suivante. Tes saisies sont gardées sur cet appareil.</p>
+  </div>
+  <div id="casebody" class="panel"></div>
+</section>
+
+<!-- ================= COURS ================= -->
+<section class="panel" id="p-cours" hidden>
+  <div class="block">
+    <h2>Le cours, ligne par ligne</h2>
+    <div class="toc" id="toc"></div>
+  </div>
+
+  <div class="block">
+    <h2>Bilan et compte de résultat</h2>
+    <div class="grid2">
+      <div class="card"><h3>Le bilan : une photo</h3><p>Patrimoine à une date (31/12). À gauche l'actif, ce que l'entreprise possède. À droite le passif, d'où vient l'argent. Les deux totaux sont toujours égaux. C'est un stock, en euros à une date.</p></div>
+      <div class="card"><h3>Le compte de résultat : un film</h3><p>Tout ce qui s'est passé du 1er janvier au 31 décembre. Produits − Charges = Résultat. C'est un flux, en euros par an. Le résultat se retrouve au passif du bilan, dans les capitaux propres.</p></div>
+    </div>
+  </div>
+
+  <div class="block">
+    <h2>Les soldes intermédiaires de gestion</h2>
+    <p>On descend en entonnoir du chiffre d'affaires au résultat net. La grille a trois colonnes : Produits, Charges, Solde = Produits − Charges. Chaque solde est repris en tête de l'étage suivant.</p>
+
+    <article class="card lesson" id="c-mc"><h3>Marge commerciale</h3>
+      <p>Elle ne concerne que les <strong>marchandises</strong> : ce qui est acheté puis revendu en l'état, sans transformation. Une entreprise de services ou purement industrielle a une marge commerciale nulle.</p>
+      <div class="formula">Marge commerciale = Ventes de marchandises − <b>Coût d'achat des marchandises vendues</b>
+Coût d'achat des marchandises vendues = Achats de marchandises + Variation de stocks de marchandises</div>
+      <p class="where">Dans la grille : colonne Produits, « Ventes de marchandises ». Colonne Charges, on inscrit les achats de marchandises sur la première ligne, la variation de stocks sur la seconde <strong>avec son signe</strong>, et le total donne le coût d'achat.</p>
+      <p>La variation de stocks vaut stock initial − stock final. Positive, on a puisé dans le stock : le coût augmente. Négative (−300 dans l'examen), le stock a grossi : on a acheté plus qu'on n'a vendu, le coût diminue. Le compte de résultat a deux lignes « Variation de stocks » : celle-ci est celle située sous les achats de marchandises.</p>
+      <div class="note"><strong>Piège.</strong> Les matières premières ne passent jamais ici. Elles vont dans les consommations, à l'étage de la valeur ajoutée.</div>
+    </article>
+
+    <article class="card lesson" id="c-prod"><h3>Production de l'exercice</h3>
+      <p>Le symétrique de la marge commerciale pour ce que l'entreprise <strong>fabrique</strong> ou les services qu'elle rend.</p>
+      <div class="formula">Production de l'exercice = Production vendue + Production stockée + Production immobilisée</div>
+      <ul><li>Production vendue : fabriquée et facturée dans l'année, au prix de vente.</li><li>Production stockée : fabriquée mais pas encore vendue, au coût de production.</li><li>Production immobilisée : fabriquée pour son propre usage.</li></ul>
+      <p class="where">Dans la grille : les trois lignes sont en colonne Produits. Si la production stockée est <strong>négative</strong>, c'est un déstockage : on a vendu plus que produit. Elle s'inscrit alors en colonne Charges, en positif, sur « Ou déstockage de production ». Le solde baisse d'autant.</p>
+    </article>
+
+    <article class="card lesson" id="c-report"><h3>Reporter un solde, et les lignes « Ou … »</h3>
+      <p>Chaque solde calculé redescend sur la première ligne de l'étage suivant, colonne Produits : la valeur ajoutée ouvre l'étage de l'EBE, l'EBE ouvre celui du résultat d'exploitation, et ainsi de suite.</p>
+      <p>Quand le solde est <strong>négatif</strong> (insuffisance brute d'exploitation, perte d'exploitation, RCAI ou résultat exceptionnel négatif), la présentation du PCG le déplace en colonne Charges, en positif, sur la ligne « Ou … ». Le corrigé de l'examen 2025-2026 le laisse en colonne Produits avec son signe moins.</p>
+      <p class="where">Les deux écritures donnent le même solde et les exercices acceptent les deux. Choisis-en une et tiens-la sur toute la copie. Les totaux de colonnes changent selon ton choix, pas le solde.</p>
+    </article>
+
+    <article class="card lesson" id="c-va"><h3>Valeur ajoutée</h3>
+      <p>La richesse réellement créée : ce qui a été vendu ou fabriqué, moins tout ce qui a été acheté à l'extérieur. Rien n'a encore été versé aux salariés, à l'État, aux banques ni aux associés.</p>
+      <div class="formula">VA = Marge commerciale + Production de l'exercice − <b>Consommations en provenance des tiers</b>
+Consommations = Achats de matières premières + Variation de stocks de matières premières
+              + Autres achats et charges externes</div>
+      <p class="where">Dans la grille : colonne Produits, les deux soldes précédents. Colonne Charges, une seule ligne à calculer en additionnant trois lignes du compte de résultat. La variation de stocks de matières premières garde son signe.</p>
+      <div class="note"><strong>Pièges.</strong> Les achats de marchandises sont déjà dans la marge commerciale : ne les reprends pas. Les salaires et les impôts n'interviennent qu'à l'étage suivant.</div>
+      <p>La VA se partage entre quatre convives, dans cet ordre : les salariés, l'État, les prêteurs, puis l'entreprise et ses associés.</p>
+    </article>
+
+    <article class="card lesson" id="c-ebe"><h3>Excédent brut d'exploitation</h3>
+      <p>Ce que rapporte le métier, avant toute décision de financement ou d'amortissement. C'est le solde le plus comparable entre deux entreprises d'un secteur. Négatif, il s'appelle insuffisance brute d'exploitation.</p>
+      <div class="formula">EBE = VA + Subventions d'exploitation − Impôts et taxes − <b>Charges de personnel</b>
+Charges de personnel = Salaires et traitements + Charges sociales</div>
+      <p class="where">Dans la grille : « Impôts et taxes » est la ligne « Impôts, taxes et versements assimilés » des charges d'exploitation. Ce n'est pas l'impôt sur les bénéfices, qui arrive tout en bas.</p>
+      <div class="note"><strong>Piège.</strong> Seule la subvention d'<em>exploitation</em> entre ici. La quote-part de subvention d'investissement est un produit exceptionnel.</div>
+    </article>
+
+    <article class="card lesson" id="c-re"><h3>Résultat d'exploitation</h3>
+      <p>On repart de l'EBE et on intègre les produits et charges d'exploitation restants, dont ceux qui ne correspondent à aucun mouvement d'argent : dotations et reprises.</p>
+      <div class="formula">Résultat d'exploitation = EBE + Reprises et transferts de charges + Autres produits
+                         − <b>Dotations aux amortissements et provisions</b> − Autres charges</div>
+      <p class="where">Dans la grille : « Dotations » additionne les quatre lignes de dotations d'exploitation (amortissements sur immobilisations, dépréciations sur immobilisations, dépréciations sur actif circulant, provisions). Les dotations financières n'en font pas partie.</p>
+      <p>Contrôle gratuit : le solde doit être égal au « Résultat d'exploitation » imprimé dans le compte de résultat.</p>
+    </article>
+
+    <article class="card lesson" id="c-rcai"><h3>Résultat courant avant impôts</h3>
+      <p>On ajoute ce qui relève du financement. C'est le solde le plus proche de ce qui se reproduira l'an prochain : activité normale, financement compris, sans exceptionnel ni impôt.</p>
+      <div class="formula">RCAI = Résultat d'exploitation + Produits financiers − Charges financières</div>
+      <p class="where">Dans la grille : on prend les <strong>totaux</strong> des produits financiers et des charges financières, dotations financières comprises. Les lignes « Quotes-parts de résultat sur opérations faites en commun » restent vides dans tous les cas du cours.</p>
+      <p>Contrôle : le solde est imprimé dans le compte de résultat.</p>
+    </article>
+
+    <article class="card lesson" id="c-rex"><h3>Résultat exceptionnel</h3>
+      <p>Tout ce qui sort de l'activité normale : cession d'un bien, sinistre, amende, indemnité. On l'isole parce qu'il ne se reproduira pas.</p>
+      <div class="formula">Résultat exceptionnel = Total des produits exceptionnels − Total des charges exceptionnelles</div>
+      <p class="where">Dans la grille : on prend les totaux, donc aussi les cessions (PCEA et VCEA), la quote-part de subvention virée au résultat et les lignes « sur provisions et transferts de charges ». Ce solde ne dépend pas des étages précédents.</p>
+    </article>
+
+    <article class="card lesson" id="c-rn"><h3>Résultat de l'exercice</h3>
+      <div class="formula">Résultat de l'exercice = RCAI + Résultat exceptionnel − Participation des salariés − Impôt sur les bénéfices</div>
+      <p class="where">Dans la grille : colonne Produits, les deux soldes précédents ; colonne Charges, participation et impôt. Un impôt négatif (crédit d'impôt, comme COUVRE CHEF en N-1) s'inscrit avec son signe : il augmente le résultat.</p>
+      <p>Contrôle : c'est la dernière ligne du compte de résultat, et le « Résultat de l'exercice » des capitaux propres au bilan.</p>
+    </article>
+
+    <article class="card lesson" id="c-pv"><h3>Plus ou moins-values de cession</h3>
+      <p>Neuvième solde, souvent oublié. Quand l'entreprise vend une machine, elle ne gagne pas le prix de vente mais la différence avec ce que la machine valait encore dans ses comptes.</p>
+      <div class="formula">± value = Produits des cessions d'éléments d'actif (PCEA) − Valeur comptable des éléments cédés (VCEA)</div>
+      <p class="where">Dans le compte de résultat : PCEA = produits exceptionnels « sur opérations en capital » ; VCEA = charges exceptionnelles « sur opérations en capital ». Ce solde est une information : il est déjà contenu dans le résultat exceptionnel.</p>
+      <p>Exemple : machine achetée 10 000, amortie 8 000, valeur comptable 2 000. Vendue 3 000, la plus-value est de 1 000.</p>
+    </article>
+  </div>
+
+  <div class="block">
+    <h2>La capacité d'autofinancement</h2>
+    <article class="card lesson" id="c-caf-def"><h3>Ce que mesure la CAF</h3>
+      <p>Une entreprise bénéficiaire peut manquer d'argent : la comptabilité enregistre une vente le jour de la facture, et certaines charges (les amortissements) ne sortent jamais de la caisse. La CAF corrige cet écart.</p>
+      <div class="formula">CAF = Produits encaissables − Charges décaissables</div>
+      <p>C'est la trésorerie <strong>potentielle</strong> dégagée par l'activité de l'année, avant dividendes. Ce n'est pas le solde en banque : elle ignore les délais de paiement, traités par le BFR.</p>
+    </article>
+
+    <article class="card lesson" id="c-caf-ebe"><h3>Méthode 1 : à partir de l'EBE</h3>
+      <p>L'EBE est déjà entièrement composé de produits encaissables et de charges décaissables d'exploitation. On lui ajoute ce qui est encaissé et on retire ce qui est décaissé <strong>en dessous de l'EBE</strong> dans le compte de résultat.</p>
+      <div class="formula">  EBE
+<b>+ Produits encaissés</b>
+<b>− Charges décaissées</b>
+= CAF</div>
+      <p class="where">La première ligne est l'EBE de ton tableau de SIG, avec son signe. Rien de ce qui est au-dessus de l'EBE (ventes, achats, salaires, subvention d'exploitation, impôts et taxes) ne doit être repris.</p>
+    </article>
+
+    <article class="card lesson" id="c-caf-penc"><h3>Produits encaissés</h3>
+      <ul>
+        <li><strong>Autres produits d'exploitation</strong> : la ligne « Autres produits ».</li>
+        <li><strong>Produits financiers encaissés</strong> : total des produits financiers <em>moins</em> les reprises financières.</li>
+        <li><strong>Produits exceptionnels encaissés</strong> : uniquement la ligne « sur opérations de gestion ».</li>
+      </ul>
+      <div class="note"><strong>Ce qu'on laisse de côté.</strong> Les produits « sur opérations en capital » (PCEA), la quote-part de subvention et les reprises exceptionnelles ne sont pas encaissables. Dans les corrigés du cours, la ligne « Reprises sur provisions (amorts), transferts de charges » est traitée en entier comme une reprise : elle n'entre pas ici.</div>
+    </article>
+
+    <article class="card lesson" id="c-caf-cdec"><h3>Charges décaissées</h3>
+      <ul>
+        <li><strong>Autres charges d'exploitation</strong> : la ligne « Autres charges ».</li>
+        <li><strong>Charges financières décaissées</strong> : total des charges financières <em>moins</em> les dotations financières. Dans l'examen : 550 − 350 = 200.</li>
+        <li><strong>Charges exceptionnelles décaissées</strong> : uniquement « sur opérations de gestion ».</li>
+        <li><strong>Participation des salariés</strong> et <strong>impôt sur les bénéfices</strong>, ce dernier avec son signe.</li>
+      </ul>
+      <div class="note"><strong>Ce qu'on laisse de côté.</strong> La VCEA (« sur opérations en capital ») et les dotations, qu'elles soient d'exploitation, financières ou exceptionnelles : ce sont des charges calculées.</div>
+    </article>
+
+    <article class="card lesson" id="c-caf-res"><h3>Méthode 2 : à partir du résultat</h3>
+      <p>Le résultat net contient tout. On neutralise ce qui n'a pas bougé la caisse : on rajoute les charges calculées, on retire les produits calculés.</p>
+      <div class="formula">  Résultat net de l'exercice
+<b>+ Charges calculées</b>
+<b>− Produits calculés</b>
+= CAF</div>
+      <p class="where">La première ligne est le bénéfice ou la perte, avec son signe.</p>
+    </article>
+
+    <article class="card lesson" id="c-caf-ccal"><h3>Charges calculées</h3>
+      <p>Elles diminuent le résultat sans qu'aucun euro ne sorte.</p>
+      <ul>
+        <li><strong>Dotations, charges d'exploitation</strong> : les quatre lignes de dotations d'exploitation (le même total que dans les SIG).</li>
+        <li><strong>Dotations, charges financières</strong> : la ligne « Dotations amortissements, dépréciations, provisions » des charges financières.</li>
+        <li><strong>Dotations, charges exceptionnelles</strong> : la ligne « sur provisions et transferts de charges » des charges exceptionnelles.</li>
+        <li><strong>VCEA</strong> : charges exceptionnelles « sur opérations en capital ».</li>
+      </ul>
+    </article>
+
+    <article class="card lesson" id="c-caf-pcal"><h3>Produits calculés</h3>
+      <p>Ils augmentent le résultat sans qu'aucun euro n'entre, ou sont exclus de la CAF par le PCG.</p>
+      <ul>
+        <li><strong>Reprises d'exploitation</strong> : la ligne « Reprises sur provisions (amorts), transferts de charges ».</li>
+        <li><strong>Reprises financières</strong> : « Reprises sur provisions et dépréciations » des produits financiers.</li>
+        <li><strong>Reprises exceptionnelles</strong> : produits exceptionnels « sur provisions et transferts de charges ».</li>
+        <li><strong>Quote-part de subvention d'investissement</strong> virée au résultat.</li>
+        <li><strong>PCEA</strong> : produits exceptionnels « sur opérations en capital ».</li>
+      </ul>
+    </article>
+
+    <article class="card lesson" id="c-caf-cession"><h3>Pourquoi les cessions sortent de la CAF</h3>
+      <p>Le prix de cession est bien de l'argent qui rentre, mais vendre une machine relève de l'investissement, pas de l'exploitation. Si on l'intégrait, une entreprise afficherait une CAF magnifique en bradant son outil de travail.</p>
+      <p class="where">Méthode 2 : on retire le PCEA (produit calculé) et on rajoute la VCEA (charge calculée). Méthode 1 : on ne prend que l'exceptionnel « sur opérations de gestion ».</p>
+    </article>
+
+    <article class="card lesson" id="c-caf-ctrl"><h3>Le contrôle des deux CAF</h3>
+      <p>Les deux méthodes donnent exactement le même montant. Un écart signale une erreur de tri. L'écart lui-même t'aide : cherche une ligne du compte de résultat qui porte ce montant.</p>
+      <div class="formula">Autofinancement = CAF − Dividendes versés
+Capacité d'endettement = Dettes financières / CAF      (les banques demandent moins de 3 ans)
+Répartition de la VA = CAF / Valeur ajoutée</div>
+    </article>
+  </div>
+
+  <div class="block">
+    <h2>Le bilan fonctionnel</h2>
+    <article class="card lesson" id="c-bf-principe"><h3>Le principe : tout l'actif en brut</h3>
+      <p>On reclasse le bilan en trois niveaux : le long terme (emplois et ressources stables), le cycle d'exploitation (actif et passif circulants), la trésorerie.</p>
+      <p>Tout l'actif est repris en <strong>valeur brute</strong>. Les amortissements et dépréciations, qui diminuaient l'actif, passent au passif dans les ressources stables : ce sont des sommes mises de côté.</p>
+      <p class="where">Sur le bilan du sujet, travaille dans la colonne « Brut » pour l'actif, et garde le total de la colonne « Amort &amp; Prov » pour les ressources stables.</p>
+    </article>
+
+    <article class="card lesson" id="c-bf-es"><h3>Emplois stables</h3>
+      <p>Toutes les immobilisations, incorporelles, corporelles et financières, pour leur valeur brute : c'est le total « Brut » de l'actif immobilisé.</p>
+    </article>
+
+    <article class="card lesson" id="c-bf-rs"><h3>Ressources stables</h3>
+      <ul>
+        <li><strong>Capitaux propres</strong> : le total des capitaux propres, résultat de l'exercice et subventions d'investissement compris.</li>
+        <li><strong>Amortissements et provisions</strong> : le total de la colonne « Amort &amp; Prov » de <em>tout</em> l'actif (immobilisations, mais aussi clients, VMP, disponibilités), plus les provisions pour risques et charges du passif.</li>
+        <li><strong>Dettes financières</strong> : emprunts obligataires, emprunts auprès des établissements de crédit, dettes financières diverses, <em>moins</em> les concours bancaires courants signalés par un renvoi.</li>
+      </ul>
+      <div class="note"><strong>Pièges.</strong> Oublier une dépréciation hors immobilisations (350 sur les disponibilités dans l'examen). Oublier les provisions pour risques et charges. Laisser un découvert dans les dettes financières.</div>
+    </article>
+
+    <article class="card lesson" id="c-bf-ace"><h3>Actif circulant d'exploitation</h3>
+      <ul>
+        <li><strong>Stocks</strong> : tous les stocks (matières, en-cours, produits finis, marchandises), en brut.</li>
+        <li><strong>Clients et comptes rattachés</strong>, en brut.</li>
+        <li><strong>Autres</strong> : autres créances et avances et acomptes versés sur commandes.</li>
+        <li><strong>CCA</strong> : charges constatées d'avance, sauf la part que le sujet déclare hors exploitation.</li>
+      </ul>
+    </article>
+
+    <article class="card lesson" id="c-bf-pce"><h3>Passif circulant d'exploitation</h3>
+      <ul>
+        <li><strong>Dettes fournisseurs</strong> et comptes rattachés.</li>
+        <li><strong>Dettes fiscales</strong> et sociales.</li>
+        <li><strong>Autres</strong> : autres dettes, avances et acomptes reçus sur commandes.</li>
+        <li><strong>PCA</strong> : produits constatés d'avance, sauf la part déclarée hors exploitation.</li>
+      </ul>
+    </article>
+
+    <article class="card lesson" id="c-bf-he"><h3>Le hors exploitation et les renvois du sujet</h3>
+      <p>Ce qui ne relève pas du cycle achat, production, vente.</p>
+      <ul>
+        <li>À l'actif : valeurs mobilières de placement, créances diverses hors exploitation, CCA quand un renvoi la dit hors exploitation.</li>
+        <li>Au passif : dettes sur immobilisations, PCA quand un renvoi la dit hors exploitation.</li>
+      </ul>
+      <p class="where">Lis les renvois sous le bilan avant de commencer. « La CCA est à 100 % hors exploitation » déplace toute la CCA. « La PCA est hors exploitation pour 1 000 € » la coupe en deux : 1 000 en hors exploitation, le reste en exploitation.</p>
+      <p>Le corrigé du cas ACTIVUM range les VMP dans « Autres » d'exploitation alors que la grille de l'examen a une ligne VMP en hors exploitation. Le BFR total et la trésorerie nette sont identiques ; les exercices acceptent les deux classements pour ce cas.</p>
+    </article>
+
+    <article class="card lesson" id="c-bf-treso"><h3>Trésorerie active et passive</h3>
+      <ul>
+        <li><strong>Trésorerie active</strong> : disponibilités (banque, caisse), en brut.</li>
+        <li><strong>Trésorerie passive</strong> : concours bancaires courants et soldes créditeurs de banque. Ils sont cachés dans la ligne des emprunts et signalés par un renvoi « dont … ».</li>
+      </ul>
+      <p>Le corrigé du cas GALOPPAZ ne retraite pas les 11 240 de concours bancaires ; en toute rigueur ils vont ici. Les exercices acceptent les deux pour ce cas, et appliquent le retraitement dans les sujets d'entraînement.</p>
+    </article>
+
+    <article class="card lesson" id="c-bf-frng"><h3>Fonds de roulement net global</h3>
+      <div class="formula">FRNG = Ressources stables − Emplois stables</div>
+      <p>Positif : les ressources longues financent toutes les immobilisations et il reste une marge pour le cycle d'exploitation. Négatif : des immobilisations sont financées par du court terme, la structure est fragile.</p>
+    </article>
+
+    <article class="card lesson" id="c-bf-bfr"><h3>Besoin en fonds de roulement</h3>
+      <div class="formula">BFRE  = Actif circulant d'exploitation − Passif circulant d'exploitation
+BFRHE = Actif circulant hors exploitation − Passif circulant hors exploitation
+BFR   = BFRE + BFRHE</div>
+      <p>Positif : l'entreprise avance de l'argent (stocks, clients) avant d'être payée. Négatif : fournisseurs et État financent le cycle, ce qui est habituel en restauration et en distribution où le client paie comptant.</p>
+    </article>
+
+    <article class="card lesson" id="c-bf-tn"><h3>Trésorerie nette</h3>
+      <div class="formula">TN = Trésorerie active − Trésorerie passive
+Contrôle : TN = FRNG − BFR</div>
+      <p>Si le contrôle ne tombe pas juste, un poste a été oublié ou compté deux fois. Calcule toujours la TN des deux façons.</p>
+    </article>
+
+    <article class="card lesson" id="c-bf-total"><h3>Les totaux du bilan fonctionnel</h3>
+      <div class="formula">Total actif  = Emplois stables + Actif circulant + Trésorerie active = total « Brut » du bilan
+Total passif = Ressources stables + Passif circulant + Trésorerie passive
+             = total du passif du bilan + total « Amort &amp; Prov » de l'actif</div>
+      <p class="where">« Actif circulant » additionne l'exploitation et le hors exploitation, sans la trésorerie. Même chose pour « Passif circulant ». Les deux totaux généraux sont égaux : c'est le contrôle le plus rapide.</p>
+    </article>
+  </div>
+
+  <div class="block">
+    <h2>Les ratios</h2>
+    <div class="tw"><table>
+      <tr><th>Ratio</th><th>Calcul</th><th>Lecture</th></tr>
+      <tr><td>Variation du CA</td><td>(CA N − CA N-1) / CA N-1</td><td>Positif : activité en hausse.</td></tr>
+      <tr><td>Taux de marge commerciale</td><td>Marge commerciale / Ventes de marchandises</td><td>Marge appliquée pour couvrir les charges.</td></tr>
+      <tr><td>Taux de valeur ajoutée</td><td>VA / CA</td><td>Degré d'intégration : élevé, on fait en interne ; faible, on sous-traite ou on revend.</td></tr>
+      <tr><td>Taux de marge brute d'exploitation</td><td>EBE / CA</td><td>Performance industrielle et commerciale.</td></tr>
+      <tr><td>Taux de résultat courant</td><td>RCAI / CA</td><td>Met en évidence le coût de la structure.</td></tr>
+      <tr><td>Rentabilité financière</td><td>Résultat net / Capitaux propres</td><td>Rentabilité du point de vue des associés.</td></tr>
+      <tr><td>Rentabilité économique</td><td>EBE / Ressources stables</td><td>Ressources stables = capitaux propres + dettes financières LT.</td></tr>
+      <tr><td>Répartition de la VA</td><td>CAF / VA</td><td>Part de la richesse créée gardée pour l'autofinancement.</td></tr>
+      <tr><td>Capacité d'endettement</td><td>Dettes financières / CAF</td><td>Nombre d'années de CAF pour rembourser. Seuil bancaire : 3.</td></tr>
+      <tr><td>Couverture des emplois stables</td><td>Ressources stables / Emplois stables</td><td>Au-dessus de 100 % : immobilisations financées par du long terme.</td></tr>
+      <tr><td>Couverture des capitaux investis</td><td>Ressources stables / (Emplois stables + BFRE)</td><td>Au-dessus de 100 % : le BFRE est couvert aussi.</td></tr>
+      <tr><td>Taux d'endettement</td><td>(Dettes financières + Concours bancaires) / Ressources propres</td><td>Proche de 0 : pas de dépendance au financement externe.</td></tr>
+      <tr><td>FRNG en jours de CA</td><td>FRNG × 360 / CA HT</td><td>Marge de manœuvre en jours d'activité.</td></tr>
+      <tr><td>Poids du BFRE</td><td>BFRE × 360 / CA HT</td><td>Élevé : beaucoup d'argent immobilisé dans le cycle.</td></tr>
+      <tr><td>Durée de stockage</td><td>Stock moyen × 360 / Coût des achats</td><td>Plus court, mieux c'est.</td></tr>
+      <tr><td>Délai clients</td><td>Créances clients × 360 / CA TTC</td><td>Plus court : encaissement plus rapide.</td></tr>
+      <tr><td>Délai fournisseurs</td><td>Dettes fournisseurs × 360 / Achats et services extérieurs</td><td>Plus long : avantage de trésorerie, à doser.</td></tr>
+    </table></div>
+  </div>
+</section>
+
+<!-- ================= TRI ================= -->
+<section class="panel" id="p-tri" hidden>
+  <div class="block">
+    <h2>Tri des postes</h2>
+    <p>Un poste s'affiche, tu choisis sa case.</p>
+    <div class="row" id="trimode">
+      <button class="chip" data-m="bf" aria-pressed="true">Bilan fonctionnel<small>Dans quel bloc ?</small></button>
+      <button class="chip" data-m="caf" aria-pressed="false">CAF<small>Dans quelle rubrique ?</small></button>
+    </div>
+  </div>
+  <div class="card" id="tribox"></div>
+</section>
+
+<!-- ================= QUIZ ================= -->
+<section class="panel" id="p-quiz" hidden>
+  <div class="block"><h2>Quiz</h2><p>Questions de cours et pièges relevés dans les copies. L'ordre change à chaque partie.</p></div>
+  <div class="card" id="quizbox"></div>
+</section>
+
+<!-- ================= JOUR J ================= -->
+<section class="panel" id="p-jourj" hidden>
+  <div class="block">
+    <h2>Le jour de l'examen</h2>
+    <p>L'examen 2025-2026 durait 2 heures : un compte de résultat et deux bilans (N et N-1), puis trois tableaux à remplir et cinq indicateurs.</p>
+    <div class="grid2">
+      <div class="card"><h3>Ordre de travail</h3>
+        <ol><li>Lire les renvois sous les bilans et les surligner.</li><li>SIG, une colonne à la fois (N puis N-1).</li><li>CAF par le résultat (rapide), puis par l'EBE pour contrôler.</li><li>Bilan fonctionnel, puis FRNG, BFRE, BFRHE, BFR, TN.</li></ol></div>
+      <div class="card"><h3>Les quatre contrôles gratuits</h3>
+        <ul><li>Résultat d'exploitation, RCAI et résultat net des SIG = ceux du compte de résultat.</li><li>CAF méthode 1 = CAF méthode 2.</li><li>Total du bilan fonctionnel = total <strong>brut</strong> de l'actif, des deux côtés.</li><li>FRNG − BFR = TN.</li></ul></div>
+    </div>
+    <div class="card"><h3>Les erreurs qui reviennent chaque année</h3>
+      <ul>
+        <li>Mettre des matières premières en marge commerciale.</li>
+        <li>Oublier la variation de stocks dans le coût d'achat, ou se tromper sur son signe.</li>
+        <li>Déduire les salaires avant la valeur ajoutée.</li>
+        <li>Intégrer le prix de cession d'une machine dans la CAF.</li>
+        <li>Confondre CAF et trésorerie disponible.</li>
+        <li>Prendre les immobilisations en net dans le bilan fonctionnel, ou oublier une dépréciation hors immobilisations dans les ressources stables.</li>
+        <li>Laisser la dotation financière avec les intérêts dans la méthode EBE.</li>
+      </ul></div>
+    <div class="card"><h3>Phrases de commentaire prêtes à adapter</h3>
+      <ul>
+        <li>« L'EBE est positif mais ne représente que x % du CA : l'activité couvre à peine ses charges de personnel. »</li>
+        <li>« Le résultat n'est bénéficiaire que grâce au résultat exceptionnel, qui ne se reproduira pas. »</li>
+        <li>« Il faudrait x années de CAF pour rembourser les dettes financières, au-delà du seuil de 3 ans retenu par les banques. »</li>
+        <li>« Le FRNG couvre le BFR, la trésorerie nette est positive : l'équilibre financier est respecté. »</li>
+        <li>« Le BFR est négatif : le cycle d'exploitation est une ressource, les clients paient avant les fournisseurs. »</li>
+      </ul></div>
+  </div>
+</section>
+</div>
+
+<div class="back" id="back" hidden><button id="backbtn">← Revenir à ma ligne dans l'exercice</button></div>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const el=(t,a={},h='')=>{const e=document.createElement(t);for(const k in a)e.setAttribute(k,a[k]);e.innerHTML=h;return e};
+const f=n=>(n<0?'−':'')+Math.abs(Math.round(n)).toLocaleString('fr-FR').replace(/ | /g,' ');
+const p=n=>n<0?'('+f(n)+')':f(n);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+
+/* ---------- Onglets ---------- */
+const TABS=['exos','cours','tri','quiz','jourj'];
+function show(t){ if(!TABS.includes(t))t='exos';
+  TABS.forEach(x=>{$('#p-'+x).hidden=x!==t});
+  $$('#tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===t));
+  store.set('tab',t) }
+$('#tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(b){show(b.dataset.t);window.scrollTo(0,0)}});
+
+/* ---------- Sommaire du cours ---------- */
+$('#toc').innerHTML=$$('.lesson').map(l=>'<a href="#'+l.id+'" data-toc="'+l.id+'">'+$('h3',l).textContent+'</a>').join('');
+$('#toc').addEventListener('click',e=>{const a=e.target.closest('a');if(a){e.preventDefault();flash(a.dataset.toc)}});
+function flash(id){const t=document.getElementById(id);if(!t)return;$$('.lesson.flash').forEach(x=>x.classList.remove('flash'));t.classList.add('flash');t.scrollIntoView({block:'start'})}
+let backTo=null;
+function goCourse(anchor,from){backTo=from;show('cours');flash(anchor);$('#back').hidden=false}
+$('#backbtn').addEventListener('click',()=>{show('exos');$('#back').hidden=true;const t=backTo&&document.getElementById(backTo);if(t){t.scrollIntoView({block:'center'});const i=$('input.ko',t)||$('input',t);if(i)i.focus({preventScroll:true})}});
+
+/* ---------- Compte de résultat ---------- */
+const CR=[
+ ['s',"Produits d'exploitation"],['vm','Ventes de marchandises'],['pv','Production vendue (biens et services)'],['ps','Production stockée'],['pi','Production immobilisée'],['subv',"Subventions d'exploitation"],['rep','Reprises sur provisions (amorts), transferts de charges'],['autp','Autres produits'],
+ ['s',"Charges d'exploitation"],['am','Achats de marchandises'],['vsm','Variation de stocks'],['amp','Achats de matières premières et autres approvisionnements'],['vsmp','Variation de stocks'],['aace','Autres achats et charges externes'],['imp','Impôts, taxes et versements assimilés'],['sal','Salaires et traitements'],['cs','Charges sociales'],['dai','Sur immo : dotations aux amortissements'],['ddi','Sur immo : dotations aux dépréciations'],['ddac','Sur actif circulant : dotations aux dépréciations'],['dprov','Dotations aux provisions'],['autc','Autres charges'],
+ ['t',"RÉSULTAT D'EXPLOITATION",'RE'],
+ ['s','Produits financiers'],['pf_int','Autres intérêts et produits assimilés'],['pf_rep','Reprises sur provisions et dépréciations'],['pf_chg','Différences positives de change'],
+ ['s','Charges financières'],['cf_dot','Dotations amortissements, dépréciations, provisions'],['cf_int','Intérêts et charges assimilées'],['cf_chg','Différences négatives de change'],
+ ['t','RÉSULTAT COURANT AVANT IMPÔTS','RCAI'],
+ ['s','Produits exceptionnels'],['pe_gest','sur opérations de gestion'],['pe_cap','sur opérations en capital (PCEA)'],['pe_qp','Quote-part de subvention virée au résultat'],['pe_rep','sur provisions et transferts de charges'],
+ ['s','Charges exceptionnelles'],['ce_gest','sur opérations de gestion'],['ce_cap','sur opérations en capital (VCEA)'],['ce_dot','sur provisions et transferts de charges'],
+ ['s','Participation et impôt'],['part','Participation des salariés aux résultats'],['is','Impôt sur les bénéfices'],
+ ['t','BÉNÉFICE OU PERTE','RN']];
+const KEYS=CR.filter(r=>r[0]!=='s'&&r[0]!=='t').map(r=>r[0]);
+const ALWAYS=['vm','pv','ps','am','vsm','amp','vsmp','aace','imp','sal','cs','dai','autc','pf_int','cf_dot','cf_int','pe_gest','pe_cap','ce_gest','ce_cap','part','is'];
+function calc(d0){const d={};KEYS.forEach(k=>d[k]=d0[k]||0);const o={d};
+ o.cout=d.am+d.vsm; o.MC=d.vm-o.cout; o.PE=d.pv+d.ps+d.pi; o.conso=d.amp+d.vsmp+d.aace; o.VA=o.MC+o.PE-o.conso;
+ o.pers=d.sal+d.cs; o.EBE=o.VA+d.subv-d.imp-o.pers; o.dot=d.dai+d.ddi+d.ddac+d.dprov; o.RE=o.EBE+d.rep+d.autp-o.dot-d.autc;
+ o.PF=d.pf_int+d.pf_rep+d.pf_chg; o.CF=d.cf_dot+d.cf_int+d.cf_chg; o.RCAI=o.RE+o.PF-o.CF;
+ o.PX=d.pe_gest+d.pe_cap+d.pe_qp+d.pe_rep; o.CX=d.ce_gest+d.ce_cap+d.ce_dot; o.REX=o.PX-o.CX;
+ o.RN=o.RCAI+o.REX-d.part-d.is; o.PV=d.pe_cap-d.ce_cap;
+ o.pfe=o.PF-d.pf_rep; o.cfd=o.CF-d.cf_dot;
+ o.penc=d.autp+o.pfe+d.pe_gest; o.cdec=d.autc+o.cfd+d.ce_gest+d.part+d.is; o.CAF1=o.EBE+o.penc-o.cdec;
+ o.ccal=o.dot+d.cf_dot+d.ce_dot+d.ce_cap; o.pcal=d.rep+d.pf_rep+d.pe_rep+d.pe_qp+d.pe_cap; o.CAF2=o.RN+o.ccal-o.pcal;
+ return o}
+const BK=['immo','cp','ap','df','st','cl','aut','cca','vmp','crhe','four','fisc','autd','pca','dimm','pcahe','dispo','tp'];
+function bfCalc(b0){const b={};BK.forEach(k=>b[k]=b0[k]||0);const o={b,det:b0.det||{},alt:b0.alt||{}};
+ o.ES=b.immo;o.RS=b.cp+b.ap+b.df;o.ACE=b.st+b.cl+b.aut+b.cca;o.ACHE=b.vmp+b.crhe;o.AC=o.ACE+o.ACHE;
+ o.PCE=b.four+b.fisc+b.autd+b.pca;o.PCHE=b.dimm+b.pcahe;o.PC=o.PCE+o.PCHE;o.TA=b.dispo;o.TP=b.tp;
+ o.TOTA=o.ES+o.AC+o.TA;o.TOTP=o.RS+o.PC+o.TP;o.FRNG=o.RS-o.ES;o.BFRE=o.ACE-o.PCE;o.BFRHE=o.ACHE-o.PCHE;o.BFR=o.BFRE+o.BFRHE;o.TN=o.TA-o.TP;return o}
+
+/* ---------- Sujets ---------- */
+const CASES=[
+{id:'nabs',name:"NAB'S BURGER",tag:'Examen 2025-2026 · sujet complet',years:['N','N-1'],
+ desc:"SAS de restauration rapide à Valenciennes, créée il y a trois ans. Le gérant veut un état des lieux : SIG, CAF par les deux méthodes, bilan fonctionnel et indicateurs pour N et N-1.",
+ cr:[{vm:374720,subv:3000,rep:612,autp:188,am:165071,vsm:-300,aace:149038,imp:1606,sal:52034,cs:6540,dai:1135,autc:2146,cf_dot:350,cf_int:200,pe_cap:1000,ce_cap:250,is:187},
+     {vm:281618,rep:10944,autp:12,am:130824,vsm:-1400,aace:105901,imp:1153,sal:50275,cs:3807,dai:1109,autc:40,cf_int:500,pe_gest:500,is:129}],
+ bilan:[{actif:[['Installations techniques, matériel et outillage',7827,3137],['Stocks de marchandises',3800,0],['Avances et acomptes versés sur commandes',112,0],['Autres créances',9649,0],['Disponibilités',15472,350],["Charges constatées d'avance (1)",500,0]],
+         passif:[['Capital',500],['Réserve légale',50],['Autres réserves',6104],["Résultat de l'exercice",1263],['Emprunts auprès des établissements de crédit',12474],['Dettes fournisseurs et comptes rattachés',6227],['Dettes fiscales et sociales',7255]],note:'(1) La CCA est à 100 % hors exploitation.'},
+        {actif:[['Installations techniques, matériel et outillage',8077,2001],['Stocks de marchandises',3500,0],['Autres créances',6379,0],['Disponibilités',25256,0]],
+         passif:[['Capital',500],['Réserve légale',50],['Autres réserves',5370],["Résultat de l'exercice",736],['Emprunts auprès des établissements de crédit',7424],['Dettes fournisseurs et comptes rattachés',1790],['Dettes fiscales et sociales',23941],["Produits constatés d'avance (2)",1400]],note:'(2) La PCA est hors exploitation pour 1 000 €.'}],
+ bf:[{immo:7827,cp:7917,ap:3487,df:12474,st:3800,aut:9761,crhe:500,four:6227,fisc:7255,dispo:15472,det:{ap:'3 137 sur les immobilisations + 350 sur les disponibilités',aut:'9 649 d\'autres créances + 112 d\'avances et acomptes versés',crhe:'CCA de 500, hors exploitation à 100 % (renvoi 1)',cca:'0 : toute la CCA est hors exploitation'}},
+     {immo:8077,cp:6656,ap:2001,df:7424,st:3500,aut:6379,four:1790,fisc:23941,pca:400,pcahe:1000,dispo:25256,det:{pca:'1 400 − 1 000 hors exploitation = 400',pcahe:'1 000 (renvoi 2)'}}],
+ lecture:["L'activité progresse (CA +33 %) et l'EBE redevient positif, mais il ne pèse que 1 % du CA : presque toute la valeur ajoutée part en charges de personnel.",
+  "La CAF passe de −9 099 à 1 386. Avec 12 474 de dettes financières, il faudrait 9 années de CAF pour rembourser, très au-dessus du seuil de 3 ans.",
+  "Le FRNG double (nouvel emprunt). Le BFR passe de −17 252 à +579 parce que les dettes fiscales et sociales ont été réglées (23 941 → 7 255) : c'est ce qui fait baisser la trésorerie de 25 256 à 15 472."]},
+{id:'velo',name:'ATELIER CYCLES DU NORD',tag:"Sujet d'entraînement · complet, industriel",years:['N','N-1'],invented:true,
+ desc:"SARL qui fabrique des vélos et revend des accessoires. Sujet inventé pour l'entraînement, au format de l'examen : production stockée, deux variations de stocks, soldes négatifs en N-1, cession, subvention d'investissement, concours bancaires.",
+ cr:[{vm:180000,pv:620000,ps:12000,subv:5000,rep:4000,autp:1500,am:95000,vsm:3000,amp:210000,vsmp:-6000,aace:140000,imp:12000,sal:190000,cs:76000,dai:42000,ddac:3000,dprov:2000,autc:2500,pf_int:800,cf_int:9500,pe_gest:1200,pe_cap:15000,pe_qp:2000,ce_gest:700,ce_cap:9000,is:11000},
+     {vm:165000,pv:560000,ps:-8000,autp:900,am:90000,vsm:-2000,amp:195000,vsmp:4000,aace:128000,imp:11000,sal:182000,cs:72000,dai:38000,ddac:1000,autc:1200,pf_int:300,cf_int:11000,ce_gest:2500}],
+ bilan:[{actif:[['Brevets et logiciels',20000,8000],['Constructions',300000,90000],['Installations techniques, matériel et outillage',260000,150000],['Autres immobilisations corporelles',40000,22000],['Prêts',5000,0],['Stocks de matières premières',46000,0],['Stocks de produits finis',52000,0],['Stocks de marchandises',27000,0],['Créances clients et comptes rattachés',118000,7000],['Autres créances',14000,0],['Valeurs mobilières de placement',10000,0],['Disponibilités',21000,0],["Charges constatées d'avance (1)",4000,0]],
+         passif:[['Capital',150000],['Réserve légale',15000],['Autres réserves',32200],["Résultat de l'exercice",41800],["Subventions d'investissement",18000],['Provisions pour risques',6000],['Emprunts auprès des établissements de crédit (2)',210000],['Dettes fournisseurs et comptes rattachés',88000],['Dettes fiscales et sociales',46000],['Dettes sur immobilisations',25000],['Autres dettes',5000],["Produits constatés d'avance",3000]],note:'(1) Dont 1 500 € hors exploitation. (2) Dont 12 000 € de concours bancaires courants.'},
+        {actif:[['Brevets et logiciels',20000,6000],['Constructions',300000,78000],['Installations techniques, matériel et outillage',250000,135000],['Autres immobilisations corporelles',40000,17000],['Prêts',5000,0],['Stocks de matières premières',40000,0],['Stocks de produits finis',40000,0],['Stocks de marchandises',30000,0],['Créances clients et comptes rattachés',104000,4000],['Autres créances',11000,0],['Disponibilités',6000,0],["Charges constatées d'avance",3000,0]],
+         passif:[['Capital',150000],['Réserve légale',15000],['Autres réserves',47700],["Résultat de l'exercice",-15500],["Subventions d'investissement",20000],['Provisions pour risques',4000],['Emprunts auprès des établissements de crédit (3)',248800],['Dettes fournisseurs et comptes rattachés',92000],['Dettes fiscales et sociales',41000],['Autres dettes',4000],["Produits constatés d'avance",2000]],note:'(3) Dont 31 000 € de concours bancaires courants.'}],
+ bf:[{immo:625000,cp:257000,ap:283000,df:198000,st:125000,cl:118000,aut:14000,cca:2500,vmp:10000,crhe:1500,four:88000,fisc:46000,autd:5000,pca:3000,dimm:25000,dispo:21000,tp:12000,det:{immo:'20 000 + 300 000 + 260 000 + 40 000 + 5 000',cp:'150 000 + 15 000 + 32 200 + 41 800 + 18 000 de subventions d\'investissement',ap:'277 000 de colonne « Amort & Prov » (dont 7 000 sur les clients) + 6 000 de provisions pour risques',df:'210 000 − 12 000 de concours bancaires',st:'46 000 + 52 000 + 27 000',cca:'4 000 − 1 500 hors exploitation',crhe:'1 500 de CCA hors exploitation (renvoi 1)',tp:'12 000 (renvoi 2)'}},
+     {immo:615000,cp:217200,ap:244000,df:217800,st:110000,cl:104000,aut:11000,cca:3000,four:92000,fisc:41000,autd:4000,pca:2000,dispo:6000,tp:31000,det:{immo:'20 000 + 300 000 + 250 000 + 40 000 + 5 000',cp:'150 000 + 15 000 + 47 700 − 15 500 + 20 000',ap:'240 000 de colonne « Amort & Prov » + 4 000 de provisions pour risques',df:'248 800 − 31 000 de concours bancaires',st:'40 000 + 40 000 + 30 000',tp:'31 000 (renvoi 3)'}}],
+ lecture:["Redressement net : la valeur ajoutée passe de 302 000 à 370 000 et l'EBE de 37 000 à 97 000. En N-1, résultat d'exploitation, RCAI et résultat exceptionnel étaient tous négatifs.",
+  "La CAF passe de 23 500 à 76 800. Capacité d'endettement en N : 198 000 / 76 800 = 2,6 ans, sous le seuil de 3 ans ; en N-1 elle était de 9,3 ans.",
+  "Le FRNG (113 000) couvre désormais le BFR (104 000) : la trésorerie nette redevient positive (+9 000) après un découvert net de 25 000.",
+  "Le BFR hors exploitation est négatif (−13 500) à cause de 25 000 de dettes sur immobilisations : ce financement est provisoire."]},
+{id:'librairie',name:'LIBRAIRIE DES ARCADES',tag:"Sujet d'entraînement · complet, négoce",years:['N','N-1'],invented:true,
+ desc:"SAS de négoce, même profil que le sujet d'examen. Sujet inventé pour l'entraînement : moins-value de cession, dotation financière sur des VMP, PCA en partie hors exploitation, découvert en N-1.",
+ cr:[{vm:512000,subv:2000,rep:1800,autp:400,am:318000,vsm:-9000,aace:78000,imp:5200,sal:61000,cs:24000,dai:8500,ddac:1200,autc:900,pf_int:150,cf_dot:500,cf_int:3100,pe_cap:2500,ce_gest:600,ce_cap:4000,is:3200},
+     {vm:468000,autp:250,am:301000,vsm:4000,aace:71000,imp:4800,sal:58000,cs:22500,dai:7900,autc:300,pf_int:90,cf_int:3600,pe_gest:1500,is:250}],
+ bilan:[{actif:[['Fonds commercial',60000,0],['Agencements et installations',72000,31000],['Matériel de bureau et informatique',18000,9500],['Dépôts et cautionnements',3000,0],['Stocks de marchandises',94000,0],['Créances clients et comptes rattachés',12000,1200],['Autres créances',6500,0],['Valeurs mobilières de placement',8000,500],['Disponibilités',17400,0],["Charges constatées d'avance",2100,0]],
+         passif:[['Capital',40000],['Réserve légale',4000],['Autres réserves',25850],["Résultat de l'exercice",19650],['Emprunts auprès des établissements de crédit',68000],['Dettes fournisseurs et comptes rattachés',71000],['Dettes fiscales et sociales',14500],['Dettes sur immobilisations',6000],["Produits constatés d'avance (1)",1800]],note:'(1) La PCA est hors exploitation pour 800 €.'},
+        {actif:[['Fonds commercial',60000,0],['Agencements et installations',70000,26000],['Matériel de bureau et informatique',18000,7000],['Dépôts et cautionnements',3000,0],['Stocks de marchandises',85000,0],['Créances clients et comptes rattachés',9000,0],['Autres créances',5000,0],['Disponibilités',3200,0],["Charges constatées d'avance",1800,0]],
+         passif:[['Capital',40000],['Réserve légale',4000],['Autres réserves',29360],["Résultat de l'exercice",-3510],['Emprunts auprès des établissements de crédit (2)',61150],['Dettes fournisseurs et comptes rattachés',79000],['Dettes fiscales et sociales',12000]],note:'(2) Dont 9 000 € de concours bancaires courants.'}],
+ bf:[{immo:153000,cp:89500,ap:42200,df:68000,st:94000,cl:12000,aut:6500,cca:2100,vmp:8000,four:71000,fisc:14500,pca:1000,dimm:6000,pcahe:800,dispo:17400,det:{immo:'60 000 + 72 000 + 18 000 + 3 000',cp:'40 000 + 4 000 + 25 850 + 19 650',ap:'31 000 + 9 500 + 1 200 sur les clients + 500 sur les VMP',pca:'1 800 − 800 hors exploitation',pcahe:'800 (renvoi 1)',vmp:'8 000 en brut'}},
+     {immo:151000,cp:69850,ap:33000,df:52150,st:85000,cl:9000,aut:5000,cca:1800,four:79000,fisc:12000,dispo:3200,tp:9000,det:{immo:'60 000 + 70 000 + 18 000 + 3 000',cp:'40 000 + 4 000 + 29 360 − 3 510',ap:'26 000 + 7 000',df:'61 150 − 9 000 de concours bancaires',tp:'9 000 (renvoi 2)'}}],
+ lecture:["La marge commerciale passe de 34,8 % à 39,6 % des ventes : c'est elle qui fait passer l'EBE de 6 700 à 36 800.",
+  "Le résultat exceptionnel est négatif en N (−2 100) à cause d'une moins-value de cession : 2 500 − 4 000 = −1 500.",
+  "CAF de 29 550 pour 68 000 de dettes financières : 2,3 années, acceptable.",
+  "Le FRNG passe de 4 000 à 46 700 (nouvel emprunt, bénéfice mis en réserve) : la trésorerie nette passe de −5 800 à +17 400 malgré un BFR en forte hausse (stocks)."]},
+{id:'couvrechef',name:'COUVRE CHEF',tag:'Cas pratique n°2 · SIG et CAF',years:['N','N-1'],
+ desc:"Entreprise mixte : elle revend des marchandises et fabrique. Le cas le plus complet du TD pour le tri des lignes.",
+ cr:[{vm:790361,pv:738256,ps:13602,subv:16441,rep:36981,autp:8266,am:355297,vsm:15059,amp:310836,vsmp:-31599,aace:456015,imp:9769,sal:352450,cs:99907,dai:15946,ddac:6580,dprov:879,autc:7131,pf_int:676,pf_chg:3711,cf_dot:369,cf_int:21498,cf_chg:5227,pe_gest:27468,pe_qp:4780,pe_rep:407,ce_gest:8871,ce_cap:1677,ce_dot:395,is:1103},
+     {vm:1028957,pv:660062,ps:-22300,subv:10000,rep:81767,autp:3248,am:493355,vsm:-1379,amp:268735,vsmp:-4467,aace:465776,imp:14899,sal:376276,cs:105258,dai:2465,ddac:22236,autc:950,pf_int:50,pf_chg:5483,cf_int:21200,cf_chg:1057,pe_gest:5883,pe_qp:492,ce_gest:50441,is:-16837}],
+ lecture:["L'EBE est négatif les deux années : la valeur ajoutée ne couvre pas les charges de personnel.",
+  "En N le résultat est positif (3 539) uniquement grâce au résultat exceptionnel (21 712). Le RCAI est de −17 070.",
+  "La CAF est négative : l'activité consomme de la trésorerie. Les reprises (36 981) gonflent le résultat sans rien encaisser.",
+  "En N-1 l'impôt est négatif (−16 837) : il augmente le résultat et la CAF."]},
+{id:'auvergolf',name:'AUVERGOLF',tag:'Cas pratique n°1 · SIG et CAF',years:['N','N-1'],
+ desc:"Entreprise de services (un golf) : aucune vente de marchandises, de lourds amortissements et un endettement important.",
+ cr:[{pv:450202,rep:6660,autp:57,aace:117842,imp:16060,sal:16250,cs:29034,dai:196272,autc:5,pf_int:402,cf_int:63345,pe_gest:5333,pe_cap:3750,ce_gest:282,is:8195},
+     {pv:469503,aace:96765,imp:20030,sal:16250,cs:29464,dai:206825,pf_int:373,cf_int:56932,pe_cap:12225,ce_gest:1250,is:16373}],
+ lecture:["Pas de marchandises : la marge commerciale est nulle, tout passe par la production de l'exercice.",
+  "L'EBE représente 60 % du CA, mais les amortissements (196 272) et les intérêts (63 345) en absorbent l'essentiel. Le résultat net est faible alors que la CAF reste élevée.",
+  "CA en baisse de 4 %, charges externes en hausse : EBE, résultat et CAF reculent."]},
+{id:'activum',name:'ACTIVUM',tag:'Cas pratique n°1 · Bilan fonctionnel',years:['N'],
+ desc:"Un bilan, une année : provisions pour risques et charges, dépréciation clients, VMP et une grosse dette sur immobilisations.",
+ bilan:[{actif:[["Frais d'établissement",100,20],['Fonds commercial',50000,0],['Constructions',60000,20000],['Installations techniques, matériel et outillage',40000,10000],['Autres immobilisations corporelles',10000,4000],['Participations',2000,0],['Prêts',1500,0],['Stocks de matières premières',6000,0],['Stocks de marchandises',5000,0],['Créances clients et comptes rattachés',46000,800],['Autres créances',1200,0],['Valeurs mobilières de placement',1800,0],['Disponibilités',800,0],["Charges constatées d'avance",50,0]],
+  passif:[['Capital',50000],['Réserve légale',450],['Report à nouveau',60],["Résultat de l'exercice",1000],['Provisions pour risques',1000],['Provisions pour charges',400],['Emprunts auprès des établissements de crédit',68600],['Dettes fournisseurs et comptes rattachés',20000],['Dettes fiscales et sociales',1320],['Dettes sur immobilisations',41000],['Autres dettes',5700],["Produits constatés d'avance",100]]}],
+ bf:[{immo:163600,cp:51510,ap:36220,df:68600,st:11000,cl:46000,aut:3000,cca:50,four:20000,fisc:1320,autd:5700,pca:100,dimm:41000,dispo:800,
+  det:{ap:'34 820 de colonne « Amort & Prov » + 1 400 de provisions pour risques et charges',st:'6 000 + 5 000',aut:'corrigé du TD : 1 200 + 1 800 de VMP = 3 000 ; avec les VMP en hors exploitation : 1 200',vmp:'corrigé du TD : 0 (VMP rangées dans « Autres ») ; grille de l\'examen : 1 800'},
+  alt:{aut:[1200],vmp:[1800],ACE:[58250],ACHE:[1800],BFRE:[31130],BFRHE:[-39200]}}],
+ lecture:["FRNG négatif (−7 270) : les ressources stables ne couvrent pas les immobilisations.",
+  "La trésorerie n'est positive que parce que le BFR hors exploitation est très négatif : 41 000 de dettes envers les fournisseurs d'immobilisations, qu'il faudra payer.",
+  "Les deux classements des VMP sont acceptés ici (voir le cours, « Le hors exploitation »)."]},
+{id:'galoppaz',name:'GALOPPAZ',tag:'Cas pratique n°2 · Bilan fonctionnel',years:['N'],
+ desc:"Entreprise industrielle avec de gros stocks et des en-cours. Un renvoi signale des concours bancaires dans les emprunts.",
+ bilan:[{actif:[['Frais de recherche et de développement',80000,0],['Constructions',150000,76526],['Installations techniques, matériel et outillage',205000,75502],['Autres immobilisations corporelles',176758,51758],['Participations',7384,0],['Stocks de matières premières',215306,0],['En-cours de production',262398,0],['Créances clients et comptes rattachés',233060,7630],['Disponibilités',2422,0]],
+  passif:[['Capital',250000],['Réserve légale',25000],['Réserves statutaires',45141],['Autres réserves',23410],['Report à nouveau',2590],["Résultat de l'exercice",113460],['Emprunts auprès des établissements de crédit (1)',323026],['Dettes fournisseurs et comptes rattachés',212524],['Dettes fiscales et sociales',125761]],note:'(1) Dont 11 240 € de concours bancaires courants et soldes créditeurs de banque.'}],
+ bf:[{immo:619142,cp:459601,ap:211416,df:323026,st:477704,cl:233060,four:212524,fisc:125761,dispo:2422,
+  det:{ap:'203 786 + 7 630 sur les clients',st:'215 306 + 262 398',df:'corrigé du TD : 323 026 ; avec retraitement des concours bancaires : 323 026 − 11 240 = 311 786',tp:'corrigé du TD : 0 ; avec retraitement : 11 240'},
+  alt:{df:[311786],RS:[982803],tp:[11240],TP:[11240],FRNG:[363661],TN:[-8818]}}],
+ lecture:["Le FRNG (374 901) couvre tout juste le BFR (372 479) : l'équilibre tient, avec une trésorerie quasi nulle.",
+  "Le BFR est lourd à cause des stocks et en-cours (477 704) et des créances clients : profil d'une entreprise industrielle à cycle long.",
+  "Avec le retraitement des concours bancaires, le FRNG tombe à 363 661 et la trésorerie nette à −8 818. Les deux versions sont acceptées ici."]}
+];
+
+/* ---------- Spécification des lignes ---------- */
+const LINES={}; let OKS=new Set();
+function sigSpec(R){
+ const A=g=>R.map(o=>[g(o)]), Y=g=>R.map(g);
+ const totP=(base,vs)=>R.map(o=>{let s=[base(o)];vs.forEach(v=>{const x=v(o);s=x<0?s.flatMap(t=>[t+x,t]):s.map(t=>t+x)});return s});
+ const totC=(base,vs)=>R.map(o=>{let s=[base(o)];vs.forEach(v=>{const x=v(o);if(x<0)s=s.flatMap(t=>[t,t-x])});return s});
+ const cpy=(lib,g)=>o=>'Ligne « '+lib+' » : '+f(g(o));
+ const rp=(nom,g)=>o=>'Report du solde '+nom+' : '+f(g(o))+(g(o)<0?' (ou '+f(-g(o))+' en colonne Charges)':'');
+ const ou=(nom,g)=>o=>g(o)<0?nom+' négatif : '+f(-g(o))+' ici, ou vide si tu l\'as laissé en Produits avec son signe':nom+' positif : cette ligne reste vide';
+ const REP='Reprends le solde calculé à l\'étage précédent. S\'il est négatif, garde le signe moins ou passe-le en colonne Charges.';
+ const OU='Cette ligne ne sert que si le solde reporté est négatif : il s\'inscrit ici en positif.';
+ const TOT='Additionne les lignes de la colonne au-dessus.';
+ return [
+ {P:[{id:'vm',label:'Ventes de marchandises',v:A(o=>o.d.vm),c:'c-mc',hint:'Recopie la première ligne du compte de résultat.',calc:cpy('Ventes de marchandises',o=>o.d.vm)},
+     {id:'t1p',label:'Total',kind:'tot',v:A(o=>o.d.vm),c:'c-mc',hint:TOT,calc:o=>f(o.d.vm)}],
+  C:[{id:'am',label:"Coût d'achat des marchandises vendues",v:A(o=>o.d.am),c:'c-mc',hint:'Sur cette ligne on inscrit les achats de marchandises ; la variation de stocks vient juste en dessous.',calc:cpy('Achats de marchandises',o=>o.d.am)},
+     {id:'vsm',label:'Variation des stocks',v:A(o=>o.d.vsm),c:'c-mc',hint:'Variation de stocks de marchandises (celle située sous les achats de marchandises), avec son signe.',calc:cpy('Variation de stocks',o=>o.d.vsm)},
+     {id:'t1c',label:'Total',kind:'tot',v:A(o=>o.cout),c:'c-mc',hint:'Achats + variation de stocks. Une variation négative diminue le total.',calc:o=>f(o.d.am)+' + '+p(o.d.vsm)+' = '+f(o.cout)}],
+  S:{id:'MC',label:'Marge commerciale',v:A(o=>o.MC),c:'c-mc',hint:'Total Produits − Total Charges de cet étage.',calc:o=>f(o.d.vm)+' − '+f(o.cout)+' = '+f(o.MC)}},
+ {P:[{id:'pv',label:'Production vendue',v:A(o=>o.d.pv),c:'c-prod',hint:'Ligne « Production vendue (biens et services) » du compte de résultat.',calc:cpy('Production vendue',o=>o.d.pv)},
+     {id:'ps',label:'Production stockée',v:A(o=>o.d.ps),pair:{twin:'dst',side:'p',sv:Y(o=>o.d.ps)},c:'c-prod',hint:'Ligne « Production stockée ». Négative, c\'est un déstockage : signe moins ici, ou en positif dans la colonne Charges.',calc:o=>'Production stockée : '+f(o.d.ps)+(o.d.ps<0?' (ou '+f(-o.d.ps)+' en déstockage)':'')},
+     {id:'pi',label:'Production immobilisée',v:A(o=>o.d.pi),c:'c-prod',hint:'Ligne « Production immobilisée ».',calc:cpy('Production immobilisée',o=>o.d.pi)},
+     {id:'t2p',label:'Total',kind:'tot',v:totP(o=>o.d.pv+o.d.pi,[o=>o.d.ps]),c:'c-prod',hint:TOT,calc:o=>f(o.d.pv)+' + '+p(o.d.ps)+' + '+f(o.d.pi)+' = '+f(o.PE)+(o.d.ps<0?' ; ou '+f(o.d.pv+o.d.pi)+' si le déstockage est en Charges':'')}],
+  C:[{id:'dst',label:'Ou déstockage de production',v:A(o=>0),pair:{twin:'ps',side:'c',sv:Y(o=>o.d.ps)},c:'c-prod',hint:'À remplir seulement si la production stockée est négative.',calc:ou('Production stockée',o=>o.d.ps)},
+     {id:'t2c',label:'Total',kind:'tot',v:totC(o=>0,[o=>o.d.ps]),c:'c-prod',hint:TOT,calc:o=>o.d.ps<0?f(-o.d.ps)+', ou 0 selon ta présentation':'0'}],
+  S:{id:'PE',label:"Production de l'exercice",v:A(o=>o.PE),c:'c-prod',hint:'Production vendue + stockée + immobilisée, déstockage déduit.',calc:o=>f(o.d.pv)+' + '+p(o.d.ps)+' + '+f(o.d.pi)+' = '+f(o.PE)}},
+ {P:[{id:'rPE',label:"Production de l'exercice",v:A(o=>o.PE),c:'c-report',hint:'Reprends le solde de l\'étage précédent.',calc:o=>'Report : '+f(o.PE)},
+     {id:'rMC',label:'Marge commerciale',v:A(o=>o.MC),c:'c-report',hint:'Reprends le premier solde.',calc:o=>'Report : '+f(o.MC)},
+     {id:'t3p',label:'Total',kind:'tot',v:A(o=>o.PE+o.MC),c:'c-va',hint:TOT,calc:o=>f(o.PE)+' + '+f(o.MC)+' = '+f(o.PE+o.MC)}],
+  C:[{id:'conso',label:"Consommation de l'exercice en provenance de tiers",v:A(o=>o.conso),c:'c-va',hint:'Trois lignes à additionner : achats de matières premières, leur variation de stocks (avec son signe), autres achats et charges externes. Pas les achats de marchandises.',calc:o=>f(o.d.amp)+' + '+p(o.d.vsmp)+' + '+f(o.d.aace)+' = '+f(o.conso)},
+     {id:'t3c',label:'Total',kind:'tot',v:A(o=>o.conso),c:'c-va',hint:TOT,calc:o=>f(o.conso)}],
+  S:{id:'VA',label:'Valeur ajoutée',v:A(o=>o.VA),c:'c-va',hint:'Marge commerciale + Production de l\'exercice − Consommations.',calc:o=>f(o.MC)+' + '+f(o.PE)+' − '+f(o.conso)+' = '+f(o.VA)}},
+ {P:[{id:'rVA',label:'Valeur ajoutée',v:A(o=>o.VA),c:'c-report',hint:'Reprends le solde de l\'étage précédent.',calc:o=>'Report : '+f(o.VA)},
+     {id:'subv',label:"Subventions d'exploitation",v:A(o=>o.d.subv),c:'c-ebe',hint:'Ligne « Subventions d\'exploitation » des produits d\'exploitation.',calc:cpy("Subventions d'exploitation",o=>o.d.subv)},
+     {id:'t4p',label:'Total',kind:'tot',v:A(o=>o.VA+o.d.subv),c:'c-ebe',hint:TOT,calc:o=>f(o.VA)+' + '+f(o.d.subv)+' = '+f(o.VA+o.d.subv)}],
+  C:[{id:'imp',label:'Impôts et taxes',v:A(o=>o.d.imp),c:'c-ebe',hint:'Ligne « Impôts, taxes et versements assimilés » des charges d\'exploitation, pas l\'impôt sur les bénéfices.',calc:cpy('Impôts, taxes et versements assimilés',o=>o.d.imp)},
+     {id:'pers',label:'Charges de personnel',v:A(o=>o.pers),c:'c-ebe',hint:'Salaires et traitements + Charges sociales.',calc:o=>f(o.d.sal)+' + '+f(o.d.cs)+' = '+f(o.pers)},
+     {id:'t4c',label:'Total',kind:'tot',v:A(o=>o.d.imp+o.pers),c:'c-ebe',hint:TOT,calc:o=>f(o.d.imp)+' + '+f(o.pers)+' = '+f(o.d.imp+o.pers)}],
+  S:{id:'EBE',label:"Excédent brut (ou insuffisance brute) d'exploitation",v:A(o=>o.EBE),c:'c-ebe',hint:'VA + Subventions d\'exploitation − Impôts et taxes − Charges de personnel.',calc:o=>f(o.VA)+' + '+f(o.d.subv)+' − '+f(o.d.imp)+' − '+f(o.pers)+' = '+f(o.EBE)}},
+ {P:[{id:'rEBE',label:"Excédent brut d'exploitation",v:A(o=>o.EBE),pair:{twin:'ibe',side:'p',sv:Y(o=>o.EBE)},c:'c-report',hint:REP,calc:rp('EBE',o=>o.EBE)},
+     {id:'rep',label:'Reprises sur charges et transferts de charges',v:A(o=>o.d.rep),c:'c-re',hint:'Ligne « Reprises sur provisions (amorts), transferts de charges » des produits d\'exploitation.',calc:cpy('Reprises…, transferts de charges',o=>o.d.rep)},
+     {id:'autp',label:'Autres produits',v:A(o=>o.d.autp),c:'c-re',hint:'Ligne « Autres produits » des produits d\'exploitation.',calc:cpy('Autres produits',o=>o.d.autp)},
+     {id:'t5p',label:'Total',kind:'tot',v:totP(o=>o.d.rep+o.d.autp,[o=>o.EBE]),c:'c-re',hint:TOT,calc:o=>p(o.EBE)+' + '+f(o.d.rep)+' + '+f(o.d.autp)+' = '+f(o.EBE+o.d.rep+o.d.autp)+(o.EBE<0?' ; ou '+f(o.d.rep+o.d.autp)+' si l\'insuffisance est en Charges':'')}],
+  C:[{id:'ibe',label:"Ou insuffisance brute d'exploitation",v:A(o=>0),pair:{twin:'rEBE',side:'c',sv:Y(o=>o.EBE)},c:'c-report',hint:OU,calc:ou('EBE',o=>o.EBE)},
+     {id:'dot',label:'Dotations aux amortissements et aux provisions',v:A(o=>o.dot),c:'c-re',hint:'Additionne les quatre lignes de dotations d\'exploitation. Pas les dotations financières.',calc:o=>f(o.d.dai)+' + '+f(o.d.ddi)+' + '+f(o.d.ddac)+' + '+f(o.d.dprov)+' = '+f(o.dot)},
+     {id:'autc',label:'Autres charges',v:A(o=>o.d.autc),c:'c-re',hint:'Ligne « Autres charges » des charges d\'exploitation.',calc:cpy('Autres charges',o=>o.d.autc)},
+     {id:'t5c',label:'Total',kind:'tot',v:totC(o=>o.dot+o.d.autc,[o=>o.EBE]),c:'c-re',hint:TOT,calc:o=>f(o.dot)+' + '+f(o.d.autc)+' = '+f(o.dot+o.d.autc)+(o.EBE<0?' ; ou '+f(o.dot+o.d.autc-o.EBE)+' avec l\'insuffisance':'')}],
+  S:{id:'RE',label:"Résultat d'exploitation (bénéfice ou perte)",v:A(o=>o.RE),c:'c-re',hint:'EBE + Reprises + Autres produits − Dotations − Autres charges. Il doit être égal au résultat d\'exploitation du compte de résultat.',calc:o=>p(o.EBE)+' + '+f(o.d.rep)+' + '+f(o.d.autp)+' − '+f(o.dot)+' − '+f(o.d.autc)+' = '+f(o.RE)}},
+ {P:[{id:'rRE',label:"Résultat d'exploitation",v:A(o=>o.RE),pair:{twin:'reo',side:'p',sv:Y(o=>o.RE)},c:'c-report',hint:REP,calc:rp("Résultat d'exploitation",o=>o.RE)},
+     {id:'qpp',label:'Quotes-parts de résultat sur opérations faites en commun',v:A(o=>0),c:'c-rcai',hint:'Aucun cas du cours n\'en comporte : la ligne reste vide.',calc:o=>'0'},
+     {id:'pf',label:'Produits financiers',v:A(o=>o.PF),c:'c-rcai',hint:'Total des produits financiers du compte de résultat.',calc:o=>'Total des produits financiers : '+f(o.PF)},
+     {id:'t6p',label:'Total',kind:'tot',v:totP(o=>o.PF,[o=>o.RE]),c:'c-rcai',hint:TOT,calc:o=>p(o.RE)+' + '+f(o.PF)+' = '+f(o.RE+o.PF)+(o.RE<0?' ; ou '+f(o.PF)+' si la perte est en Charges':'')}],
+  C:[{id:'reo',label:"Ou résultat d'exploitation",v:A(o=>0),pair:{twin:'rRE',side:'c',sv:Y(o=>o.RE)},c:'c-report',hint:OU,calc:ou("Résultat d'exploitation",o=>o.RE)},
+     {id:'qpc',label:'Quotes-parts de résultat sur opérations faites en commun',v:A(o=>0),c:'c-rcai',hint:'Aucun cas du cours n\'en comporte : la ligne reste vide.',calc:o=>'0'},
+     {id:'cf',label:'Charges financières',v:A(o=>o.CF),c:'c-rcai',hint:'Total des charges financières, dotations financières comprises.',calc:o=>'Total des charges financières : '+f(o.d.cf_dot)+' + '+f(o.d.cf_int)+' + '+f(o.d.cf_chg)+' = '+f(o.CF)},
+     {id:'t6c',label:'Total',kind:'tot',v:totC(o=>o.CF,[o=>o.RE]),c:'c-rcai',hint:TOT,calc:o=>f(o.CF)+(o.RE<0?' ; ou '+f(o.CF-o.RE)+' avec la perte d\'exploitation':'')}],
+  S:{id:'RCAI',label:'Résultat courant avant impôts (bénéfice ou perte)',v:A(o=>o.RCAI),c:'c-rcai',hint:'Résultat d\'exploitation + Produits financiers − Charges financières. Il est imprimé dans le compte de résultat.',calc:o=>p(o.RE)+' + '+f(o.PF)+' − '+f(o.CF)+' = '+f(o.RCAI)}},
+ {P:[{id:'px',label:'Produits exceptionnels',v:A(o=>o.PX),c:'c-rex',hint:'Total des produits exceptionnels, cessions et quote-part de subvention comprises.',calc:o=>f(o.d.pe_gest)+' + '+f(o.d.pe_cap)+' + '+f(o.d.pe_qp)+' + '+f(o.d.pe_rep)+' = '+f(o.PX)}],
+  C:[{id:'cx',label:'Charges exceptionnelles',v:A(o=>o.CX),c:'c-rex',hint:'Total des charges exceptionnelles, VCEA comprise.',calc:o=>f(o.d.ce_gest)+' + '+f(o.d.ce_cap)+' + '+f(o.d.ce_dot)+' = '+f(o.CX)}],
+  S:{id:'REX',label:'Résultat exceptionnel (bénéfice ou perte)',v:A(o=>o.REX),c:'c-rex',hint:'Produits exceptionnels − Charges exceptionnelles.',calc:o=>f(o.PX)+' − '+f(o.CX)+' = '+f(o.REX)}},
+ {P:[{id:'rRCAI',label:'Résultat courant avant impôts',v:A(o=>o.RCAI),pair:{twin:'rcaio',side:'p',sv:Y(o=>o.RCAI)},c:'c-report',hint:REP,calc:rp('RCAI',o=>o.RCAI)},
+     {id:'rREX',label:'Résultat exceptionnel',v:A(o=>o.REX),pair:{twin:'rexo',side:'p',sv:Y(o=>o.REX)},c:'c-report',hint:REP,calc:rp('Résultat exceptionnel',o=>o.REX)},
+     {id:'t8p',label:'Total',kind:'tot',v:totP(o=>0,[o=>o.RCAI,o=>o.REX]),c:'c-rn',hint:TOT,calc:o=>p(o.RCAI)+' + '+p(o.REX)+' = '+f(o.RCAI+o.REX)+((o.RCAI<0||o.REX<0)?' ; ou '+f(Math.max(o.RCAI,0)+Math.max(o.REX,0))+' si les soldes négatifs sont en Charges':'')}],
+  C:[{id:'rcaio',label:'Ou résultat courant avant impôts',v:A(o=>0),pair:{twin:'rRCAI',side:'c',sv:Y(o=>o.RCAI)},c:'c-report',hint:OU,calc:ou('RCAI',o=>o.RCAI)},
+     {id:'rexo',label:'Ou résultat exceptionnel',v:A(o=>0),pair:{twin:'rREX',side:'c',sv:Y(o=>o.REX)},c:'c-report',hint:OU,calc:ou('Résultat exceptionnel',o=>o.REX)},
+     {id:'part',label:'Participation des salariés',v:A(o=>o.d.part),c:'c-rn',hint:'Ligne « Participation des salariés aux résultats ».',calc:cpy('Participation des salariés',o=>o.d.part)},
+     {id:'is',label:'Impôts sur les bénéfices',v:A(o=>o.d.is),c:'c-rn',hint:'Ligne « Impôt sur les bénéfices », avec son signe s\'il est négatif.',calc:cpy('Impôt sur les bénéfices',o=>o.d.is)},
+     {id:'t8c',label:'Total',kind:'tot',v:totC(o=>o.d.part+o.d.is,[o=>o.RCAI,o=>o.REX]),c:'c-rn',hint:TOT,calc:o=>f(o.d.part)+' + '+p(o.d.is)+' = '+f(o.d.part+o.d.is)+((o.RCAI<0||o.REX<0)?' ; ou '+f(o.d.part+o.d.is-Math.min(o.RCAI,0)-Math.min(o.REX,0))+' avec les soldes négatifs':'')}],
+  S:{id:'RN',label:"Résultat de l'exercice (bénéfice ou perte)",v:A(o=>o.RN),c:'c-rn',hint:'RCAI + Résultat exceptionnel − Participation − Impôt. C\'est la dernière ligne du compte de résultat.',calc:o=>p(o.RCAI)+' + '+p(o.REX)+' − '+f(o.d.part)+' − '+p(o.d.is)+' = '+f(o.RN)}},
+ {P:[{id:'pcea',label:"Produits des cessions d'éléments d'actif",v:A(o=>o.d.pe_cap),c:'c-pv',hint:'Produits exceptionnels « sur opérations en capital (PCEA) ».',calc:cpy('sur opérations en capital (PCEA)',o=>o.d.pe_cap)}],
+  C:[{id:'vcea',label:'Valeur comptable des éléments cédés',v:A(o=>o.d.ce_cap),c:'c-pv',hint:'Charges exceptionnelles « sur opérations en capital (VCEA) ».',calc:cpy('sur opérations en capital (VCEA)',o=>o.d.ce_cap)}],
+  S:{id:'PV',label:"Plus-values et moins-values sur cessions d'éléments d'actif",v:A(o=>o.PV),c:'c-pv',hint:'PCEA − VCEA. Négatif, c\'est une moins-value.',calc:o=>f(o.d.pe_cap)+' − '+f(o.d.ce_cap)+' = '+f(o.PV)}}
+ ]}
+function cafSpec(R){const A=g=>R.map(o=>[g(o)]);
+ return {L:[
+  {id:'ebe',label:'EBE',kind:'big',v:A(o=>o.EBE),c:'c-caf-ebe',hint:'Reprends l\'EBE de ton tableau de SIG, avec son signe.',calc:o=>'EBE des SIG : '+f(o.EBE)},
+  {id:'penc',label:'Produits encaissés :',sg:'+',kind:'tot',v:A(o=>o.penc),c:'c-caf-penc',hint:'Somme des trois lignes en dessous.',calc:o=>f(o.d.autp)+' + '+f(o.pfe)+' + '+f(o.d.pe_gest)+' = '+f(o.penc)},
+  {id:'autp',label:"Autres produits d'exploitation",lvl:1,v:A(o=>o.d.autp),c:'c-caf-penc',hint:'Ligne « Autres produits » des produits d\'exploitation. Les reprises et transferts de charges n\'entrent pas ici.',calc:o=>'Autres produits : '+f(o.d.autp)},
+  {id:'pfe',label:'Produits financiers encaissés',lvl:1,v:A(o=>o.pfe),c:'c-caf-penc',hint:'Total des produits financiers moins les reprises financières.',calc:o=>f(o.PF)+' − '+f(o.d.pf_rep)+' de reprises = '+f(o.pfe)},
+  {id:'peg',label:'Produits exceptionnels encaissés',lvl:1,v:A(o=>o.d.pe_gest),c:'c-caf-penc',hint:'Seulement la ligne « sur opérations de gestion ». Le PCEA, la quote-part de subvention et les reprises sont exclus.',calc:o=>'Produits exceptionnels sur opérations de gestion : '+f(o.d.pe_gest)},
+  {id:'cdec',label:'Charges décaissées :',sg:'−',kind:'tot',v:A(o=>o.cdec),c:'c-caf-cdec',hint:'Somme des cinq lignes en dessous.',calc:o=>f(o.d.autc)+' + '+f(o.cfd)+' + '+f(o.d.ce_gest)+' + '+f(o.d.part)+' + '+p(o.d.is)+' = '+f(o.cdec)},
+  {id:'autc',label:"Autres charges d'exploitation décaissées",lvl:1,v:A(o=>o.d.autc),c:'c-caf-cdec',hint:'Ligne « Autres charges » des charges d\'exploitation.',calc:o=>'Autres charges : '+f(o.d.autc)},
+  {id:'cfd',label:'Charges financières décaissées',lvl:1,v:A(o=>o.cfd),c:'c-caf-cdec',hint:'Total des charges financières moins les dotations financières.',calc:o=>f(o.CF)+' − '+f(o.d.cf_dot)+' de dotations = '+f(o.cfd)},
+  {id:'ceg',label:'Charges exceptionnelles décaissées',lvl:1,v:A(o=>o.d.ce_gest),c:'c-caf-cdec',hint:'Seulement la ligne « sur opérations de gestion ». La VCEA et les dotations sont exclues.',calc:o=>'Charges exceptionnelles sur opérations de gestion : '+f(o.d.ce_gest)},
+  {id:'part',label:'Participation des salariés',lvl:1,v:A(o=>o.d.part),c:'c-caf-cdec',hint:'Ligne « Participation des salariés aux résultats ».',calc:o=>f(o.d.part)},
+  {id:'is',label:'Impôts sur les bénéfices',lvl:1,v:A(o=>o.d.is),c:'c-caf-cdec',hint:'Ligne « Impôt sur les bénéfices », avec son signe.',calc:o=>f(o.d.is)},
+  {id:'caf1',label:'CAF',sg:'=',kind:'big',v:A(o=>o.CAF1),c:'c-caf-ctrl',hint:'EBE + Produits encaissés − Charges décaissées.',calc:o=>p(o.EBE)+' + '+f(o.penc)+' − '+p(o.cdec)+' = '+f(o.CAF1)}],
+ R:[
+  {id:'rn',label:"Résultat net de l'exercice",kind:'big',v:A(o=>o.RN),c:'c-caf-res',hint:'Bénéfice ou perte, dernière ligne du compte de résultat, avec son signe.',calc:o=>'Résultat de l\'exercice : '+f(o.RN)},
+  {id:'ccal',label:'Charges calculées :',sg:'+',kind:'tot',v:A(o=>o.ccal),c:'c-caf-ccal',hint:'Somme des quatre lignes en dessous.',calc:o=>f(o.dot)+' + '+f(o.d.cf_dot)+' + '+f(o.d.ce_dot)+' + '+f(o.d.ce_cap)+' = '+f(o.ccal)},
+  {id:'dexp',label:"Dotations : charges d'exploitation",lvl:1,v:A(o=>o.dot),c:'c-caf-ccal',hint:'Les quatre lignes de dotations d\'exploitation, comme dans les SIG.',calc:o=>f(o.d.dai)+' + '+f(o.d.ddi)+' + '+f(o.d.ddac)+' + '+f(o.d.dprov)+' = '+f(o.dot)},
+  {id:'dfin',label:'Dotations : charges financières',lvl:1,v:A(o=>o.d.cf_dot),c:'c-caf-ccal',hint:'Ligne « Dotations amortissements, dépréciations, provisions » des charges financières.',calc:o=>'Dotations financières : '+f(o.d.cf_dot)},
+  {id:'dexc',label:'Dotations : charges exceptionnelles',lvl:1,v:A(o=>o.d.ce_dot),c:'c-caf-ccal',hint:'Charges exceptionnelles « sur provisions et transferts de charges ».',calc:o=>'Dotations exceptionnelles : '+f(o.d.ce_dot)},
+  {id:'vcea',label:"Valeur comptable des éléments d'actif cédés (VCEA)",lvl:1,v:A(o=>o.d.ce_cap),c:'c-caf-cession',hint:'Charges exceptionnelles « sur opérations en capital ».',calc:o=>'VCEA : '+f(o.d.ce_cap)},
+  {id:'pcal',label:'Produits calculés :',sg:'−',kind:'tot',v:A(o=>o.pcal),c:'c-caf-pcal',hint:'Somme des cinq lignes en dessous.',calc:o=>f(o.d.rep)+' + '+f(o.d.pf_rep)+' + '+f(o.d.pe_rep)+' + '+f(o.d.pe_qp)+' + '+f(o.d.pe_cap)+' = '+f(o.pcal)},
+  {id:'rexp',label:"Reprises sur amort., dépréciations et provisions d'exploitation",lvl:1,v:A(o=>o.d.rep),c:'c-caf-pcal',hint:'Ligne « Reprises sur provisions (amorts), transferts de charges » des produits d\'exploitation, en entier.',calc:o=>'Reprises d\'exploitation : '+f(o.d.rep)},
+  {id:'rfin',label:'Reprises sur dépréciations et prov. financières',lvl:1,v:A(o=>o.d.pf_rep),c:'c-caf-pcal',hint:'Ligne « Reprises sur provisions et dépréciations » des produits financiers.',calc:o=>'Reprises financières : '+f(o.d.pf_rep)},
+  {id:'rexc',label:'Reprises sur dépréciations et prov. exceptionnelles',lvl:1,v:A(o=>o.d.pe_rep),c:'c-caf-pcal',hint:'Produits exceptionnels « sur provisions et transferts de charges ».',calc:o=>'Reprises exceptionnelles : '+f(o.d.pe_rep)},
+  {id:'qp',label:"QP des subventions d'investissement virée au résultat",lvl:1,v:A(o=>o.d.pe_qp),c:'c-caf-pcal',hint:'Ligne « Quote-part de subvention virée au résultat » des produits exceptionnels.',calc:o=>'Quote-part de subvention : '+f(o.d.pe_qp)},
+  {id:'pcea',label:"Produit de cession d'éléments d'actif (PCEA)",lvl:1,v:A(o=>o.d.pe_cap),c:'c-caf-cession',hint:'Produits exceptionnels « sur opérations en capital ».',calc:o=>'PCEA : '+f(o.d.pe_cap)},
+  {id:'caf2',label:'CAF',sg:'=',kind:'big',v:A(o=>o.CAF2),c:'c-caf-ctrl',hint:'Résultat net + Charges calculées − Produits calculés. Doit être égal à la CAF par l\'EBE.',calc:o=>p(o.RN)+' + '+f(o.ccal)+' − '+f(o.pcal)+' = '+f(o.CAF2)}]}}
+function bfSpec(B){
+ const A=(k,T)=>B.map(o=>[T?o[k]:o.b[k]].concat(o.alt[k]||[]));
+ const leaf=(id,label,c,hint)=>({id,label,lvl:2,v:A(id),c,hint,calc:o=>(o.det[id]?o.det[id]+' : ':'')+f(o.b[id])});
+ const leaf1=(id,label,c,hint)=>Object.assign(leaf(id,label,c,hint),{lvl:1});
+ return {A:[
+  {id:'ES',label:'Emplois stables',kind:'big',v:A('ES',1),c:'c-bf-es',hint:'Total des immobilisations brutes.',calc:o=>f(o.ES)},
+  leaf1('immo','Immobilisations brutes','c-bf-es','Total de la colonne « Brut » de l\'actif immobilisé : incorporelles, corporelles et financières.'),
+  {id:'AC',label:'Actif circulant',kind:'big',v:A('AC',1),c:'c-bf-total',hint:'Exploitation + hors exploitation, sans la trésorerie.',calc:o=>f(o.ACE)+' + '+f(o.ACHE)+' = '+f(o.AC)},
+  {id:'ACE',label:"d'exploitation",kind:'tot',lvl:1,v:A('ACE',1),c:'c-bf-ace',hint:'Stocks + Clients + Autres + CCA.',calc:o=>f(o.b.st)+' + '+f(o.b.cl)+' + '+f(o.b.aut)+' + '+f(o.b.cca)+' = '+f(o.ACE)},
+  leaf('st','Stocks','c-bf-ace','Tous les stocks, en brut : matières, en-cours, produits finis, marchandises.'),
+  leaf('cl','Clients et comptes rattachés','c-bf-ace','Créances clients en valeur brute, sans retirer la dépréciation.'),
+  leaf('aut','Autres','c-bf-ace','Autres créances + avances et acomptes versés sur commandes.'),
+  leaf('cca','CCA','c-bf-ace','Charges constatées d\'avance, moins la part que le renvoi déclare hors exploitation.'),
+  {id:'ACHE',label:'hors exploitation',kind:'tot',lvl:1,v:A('ACHE',1),c:'c-bf-he',hint:'VMP + créances et CCA hors exploitation.',calc:o=>f(o.b.vmp)+' + '+f(o.b.crhe)+' = '+f(o.ACHE)},
+  leaf('vmp','VMP','c-bf-he','Valeurs mobilières de placement, en brut.'),
+  leaf('crhe','CCA et créances hors exploitation','c-bf-he','Uniquement ce qu\'un renvoi du sujet déclare hors exploitation.'),
+  {id:'TA',label:'Trésorerie active',kind:'big',v:A('TA',1),c:'c-bf-treso',hint:'Disponibilités en brut.',calc:o=>f(o.TA)},
+  leaf1('dispo','Disponibilités','c-bf-treso','Colonne « Brut » de la ligne Disponibilités.'),
+  {id:'TOTA',label:'TOTAL GÉNÉRAL',kind:'big',v:A('TOTA',1),c:'c-bf-total',hint:'Emplois stables + Actif circulant + Trésorerie active. Il est égal au total « Brut » de l\'actif du bilan.',calc:o=>f(o.ES)+' + '+f(o.AC)+' + '+f(o.TA)+' = '+f(o.TOTA)}],
+ P:[
+  {id:'RS',label:'Ressources stables',kind:'big',v:A('RS',1),c:'c-bf-rs',hint:'Capitaux propres + Amortissements et provisions + Dettes financières.',calc:o=>f(o.b.cp)+' + '+f(o.b.ap)+' + '+f(o.b.df)+' = '+f(o.RS)},
+  leaf1('cp','Capitaux propres','c-bf-rs','Total des capitaux propres du bilan, résultat de l\'exercice compris.'),
+  leaf1('ap','Amortissements & provisions','c-bf-rs','Total de la colonne « Amort & Prov » de tout l\'actif, plus les provisions pour risques et charges.'),
+  leaf1('df','Dettes financières LT','c-bf-rs','Emprunts et dettes financières, moins les concours bancaires courants signalés par un renvoi.'),
+  {id:'PC',label:'Passif circulant',kind:'big',v:A('PC',1),c:'c-bf-total',hint:'Exploitation + hors exploitation, sans la trésorerie passive.',calc:o=>f(o.PCE)+' + '+f(o.PCHE)+' = '+f(o.PC)},
+  {id:'PCE',label:"d'exploitation",kind:'tot',lvl:1,v:A('PCE',1),c:'c-bf-pce',hint:'Fournisseurs + Dettes fiscales et sociales + Autres + PCA.',calc:o=>f(o.b.four)+' + '+f(o.b.fisc)+' + '+f(o.b.autd)+' + '+f(o.b.pca)+' = '+f(o.PCE)},
+  leaf('four','Dettes fournisseurs','c-bf-pce','Dettes fournisseurs et comptes rattachés.'),
+  leaf('fisc','Dettes fiscales','c-bf-pce','Dettes fiscales et sociales.'),
+  leaf('autd','Autres','c-bf-pce','Autres dettes, avances et acomptes reçus.'),
+  leaf('pca','PCA','c-bf-pce','Produits constatés d\'avance, moins la part que le renvoi déclare hors exploitation.'),
+  {id:'PCHE',label:'hors exploitation',kind:'tot',lvl:1,v:A('PCHE',1),c:'c-bf-he',hint:'Dettes sur immobilisations + PCA hors exploitation.',calc:o=>f(o.b.dimm)+' + '+f(o.b.pcahe)+' = '+f(o.PCHE)},
+  leaf('dimm','Dettes sur immobilisations','c-bf-he','Dettes sur immobilisations et comptes rattachés.'),
+  leaf('pcahe','PCA hors exploitation','c-bf-he','Uniquement la part de PCA qu\'un renvoi déclare hors exploitation.'),
+  {id:'TP',label:'Trésorerie passive',kind:'big',v:A('TP',1),c:'c-bf-treso',hint:'Concours bancaires courants.',calc:o=>f(o.TP)},
+  leaf1('tp','Concours bancaires courants','c-bf-treso','Montant du renvoi « dont … de concours bancaires courants ».'),
+  {id:'TOTP',label:'TOTAL GÉNÉRAL',kind:'big',v:A('TOTP',1),c:'c-bf-total',hint:'Ressources stables + Passif circulant + Trésorerie passive. Il doit être égal au total général de l\'actif.',calc:o=>f(o.RS)+' + '+f(o.PC)+' + '+f(o.TP)+' = '+f(o.TOTP)}],
+ I:[
+  {id:'FRNG',label:'FRNG = RS − ES',v:A('FRNG',1),c:'c-bf-frng',hint:'Ressources stables − Emplois stables.',calc:o=>f(o.RS)+' − '+f(o.ES)+' = '+f(o.FRNG)},
+  {id:'BFRE',label:'BFRE = ACE − PCE',v:A('BFRE',1),c:'c-bf-bfr',hint:'Actif circulant d\'exploitation − Passif circulant d\'exploitation.',calc:o=>f(o.ACE)+' − '+f(o.PCE)+' = '+f(o.BFRE)},
+  {id:'BFRHE',label:'BFRHE = ACHE − PCHE',v:A('BFRHE',1),c:'c-bf-bfr',hint:'Actif circulant hors exploitation − Passif circulant hors exploitation.',calc:o=>f(o.ACHE)+' − '+f(o.PCHE)+' = '+f(o.BFRHE)},
+  {id:'BFR',label:'BFR = BFRE + BFRHE',v:B.map(o=>[o.BFR]),c:'c-bf-bfr',hint:'Somme des deux BFR, avec leurs signes.',calc:o=>p(o.BFRE)+' + '+p(o.BFRHE)+' = '+f(o.BFR)},
+  {id:'TN',label:'TN = TA − TP',v:A('TN',1),c:'c-bf-tn',hint:'Trésorerie active − Trésorerie passive. Contrôle : FRNG − BFR.',calc:o=>f(o.TA)+' − '+f(o.TP)+' = '+f(o.TN)+' ; contrôle '+p(o.FRNG)+' − '+p(o.BFR)+' = '+f(o.FRNG-o.BFR)}]}}
+
+/* ---------- Rendu ---------- */
+let cur=null;
+function caseList(){$('#caselist').innerHTML=CASES.map(k=>'<button class="chip" aria-pressed="'+(cur===k.id)+'" data-id="'+k.id+'">'+esc(k.name)+'<small>'+esc(k.tag)+'</small></button>').join('')}
+$('#caselist').addEventListener('click',e=>{const b=e.target.closest('button');if(b)openCase(b.dataset.id)});
+
+function crTable(k){const R=k.cr.map(calc);let h='<table><tr><th>Compte de résultat</th>'+k.years.map(y=>'<th class="n">Exercice '+y+'</th>').join('')+'</tr>',pend=null;
+ CR.forEach(r=>{ if(r[0]==='s'){pend=r[1];return}
+  if(r[0]==='t'){h+='<tr class="tot"><td>'+r[1]+'</td>'+R.map(o=>'<td class="n">'+f(o[r[2]])+' €</td>').join('')+'</tr>';return}
+  if(!ALWAYS.includes(r[0])&&R.every(o=>!o.d[r[0]]))return;
+  if(pend){h+='<tr class="sec"><td colspan="'+(1+k.years.length)+'">'+pend+'</td></tr>';pend=null}
+  h+='<tr><td>'+r[1]+'</td>'+R.map(o=>'<td class="n">'+f(o.d[r[0]])+' €</td>').join('')+'</tr>'});
+ return h+'</table>'}
+function bilanTable(b,y){const ta=b.actif.reduce((s,r)=>s+r[1],0),tm=b.actif.reduce((s,r)=>s+r[2],0),tp=b.passif.reduce((s,r)=>s+r[1],0);
+ let h='<table><tr><th>Actif · exercice '+y+'</th><th class="n">Brut</th><th class="n">Amort &amp; Prov</th><th class="n">Net</th></tr>';
+ b.actif.forEach(r=>h+='<tr><td>'+esc(r[0])+'</td><td class="n">'+f(r[1])+'</td><td class="n">'+f(r[2])+'</td><td class="n">'+f(r[1]-r[2])+'</td></tr>');
+ h+='<tr class="tot"><td>Total de l\'actif</td><td class="n">'+f(ta)+'</td><td class="n">'+f(tm)+'</td><td class="n">'+f(ta-tm)+'</td></tr></table>';
+ let g='<table><tr><th>Passif · exercice '+y+'</th><th class="n">Montant</th></tr>';
+ b.passif.forEach(r=>g+='<tr><td>'+esc(r[0])+'</td><td class="n">'+f(r[1])+'</td></tr>');
+ g+='<tr class="tot"><td>Total du passif</td><td class="n">'+f(tp)+'</td></tr></table>';
+ return '<div class="grid2"><div class="tw">'+h+'</div><div class="tw">'+g+'</div></div>'+(b.note?'<p class="muted">'+esc(b.note)+'</p>':'')}
+
+function lineHTML(L,pre,k,objs){const id=pre+'-'+L.id;LINES[id]=Object.assign({},L,{years:k.years,objs,pre});
+ return '<div class="ln '+(L.kind||'')+' lv'+(L.lvl||0)+'" id="'+id+'"><div class="lb">'+(L.sg?'<span class="sg">'+L.sg+'</span>':'')+esc(L.label)+'</div><div class="in">'+
+  k.years.map((y,i)=>'<label class="f"><span>'+y+'</span><input inputmode="text" autocomplete="off" id="'+id+'-'+i+'" value="'+esc(store.get('v:'+id+'-'+i)||'')+'"></label>').join('')+
+  '<button class="v" data-val="'+id+'" aria-label="Valider la ligne '+esc(L.label)+'">Valider</button></div><div class="fb" hidden></div></div>'}
+const colHTML=(title,lines,pre,k,objs,cls)=>'<div class="col '+(cls||'')+'"><div class="colh"><span>'+title+'</span></div>'+lines.map(L=>lineHTML(L,pre,k,objs)).join('')+'</div>';
+function sheet(pre,title,inner){return '<div class="sheet" data-sheet="'+pre+'"><header><h3>'+title+'</h3><span class="row"><span class="prog" id="'+pre+'-prog"></span><button class="btn ghost sm" data-all="'+pre+'">Valider tout le tableau</button></span></header>'+inner+'</div>'}
+
+function openCase(id){cur=id;store.set('case',id);caseList();const k=CASES.find(c=>c.id===id);for(const x in LINES)delete LINES[x];OKS=new Set();
+ let h='<div class="block"><h2>'+esc(k.name)+'</h2><p>'+esc(k.desc)+'</p>'+(k.invented?'<p class="muted">Sujet construit pour ce site, pas un document du cours. Les concours bancaires y sont retraités en trésorerie passive.</p>':'')+'</div>';
+ h+='<details class="doc" open><summary>Documents du sujet</summary><div class="block">';
+ if(k.cr)h+='<div class="tw">'+crTable(k)+'</div>';
+ if(k.bilan)h+=k.bilan.map((b,i)=>bilanTable(b,k.years[i])).join('');
+ h+='<p class="muted">Seules les lignes utiles sont reprises ; sur le sujet papier, les lignes à zéro sont imprimées aussi.</p></div></details>';
+ let n=1;
+ if(k.cr){const R=k.cr.map(calc);
+  h+=sheet(id+'-sig',(n++)+'. Tableau des SIG',sigSpec(R).map(g=>'<div class="band">'+colHTML('Produits (colonne 1)',g.P,id+'-sig',k,R)+colHTML('Charges (colonne 2)',g.C,id+'-sig',k,R)+colHTML('Solde (col. 1 − col. 2)',[g.S],id+'-sig',k,R,'solde')+'</div>').join(''));
+  const c=cafSpec(R);
+  h+=sheet(id+'-caf',(n++)+'. Tableau de la CAF','<div class="band" style="--n:2">'+colHTML("Calcul de la CAF à partir de l'EBE",c.L,id+'-caf',k,R)+colHTML('Calcul de la CAF à partir du résultat',c.R,id+'-caf',k,R)+'</div>')}
+ if(k.bf){const B=k.bf.map(bfCalc),s=bfSpec(B);
+  h+=sheet(id+'-bf',(n++)+'. Bilan fonctionnel et indicateurs','<div class="band" style="--n:2">'+colHTML('Actif',s.A,id+'-bf',k,B)+colHTML('Passif',s.P,id+'-bf',k,B)+'</div><div class="band" style="--n:1">'+colHTML('Indicateurs',s.I,id+'-bf',k,B,'solde')+'</div>')}
+ h+='<details class="doc"><summary>Ce qu\'il faut en dire (à ouvrir une fois les tableaux remplis)</summary><ul>'+k.lecture.map(l=>'<li>'+esc(l)+'</li>').join('')+'</ul></details>';
+ h+='<div class="row"><button class="btn ghost sm" id="wipe">Effacer mes réponses pour ce sujet</button></div>';
+ $('#casebody').innerHTML=h;progress()}
+
+function parse(s){s=s.replace(/[\s  €]/g,'').replace(/−|–/g,'-').replace(',','.');if(s==='')return 0;if(/^\(.*\)$/.test(s))s='-'+s.slice(1,-1);const n=Number(s);return isNaN(n)?NaN:n}
+const near=(a,b)=>Math.abs(a-b)<0.5;
+function validate(id,quiet){const L=LINES[id],row=document.getElementById(id);if(!L||!row)return false;const bad=[];let nan=false;
+ L.years.forEach((y,i)=>{const inp=document.getElementById(id+'-'+i),x=parse(inp.value);let ok;
+  if(isNaN(x)){ok=false;nan=true}
+  else if(L.pair){const tw=document.getElementById(L.pre+'-'+L.pair.twin+'-'+i),t=tw?parse(tw.value):0,sv=L.pair.sv[i];
+   ok=L.pair.side==='p'?(near(x,sv)||(sv<0&&near(x,0)&&near(t,-sv))):((sv>=0&&near(x,0))||(sv<0&&((near(x,-sv)&&near(t,0))||(near(x,0)&&near(t,sv)))))}
+  else ok=L.v[i].some(v=>near(x,v));
+  inp.classList.toggle('ok',ok);inp.classList.toggle('ko',!ok);if(!ok)bad.push(y)});
+ const fb=$('.fb',row),ok=!bad.length;row.classList.toggle('ok',ok);row.classList.toggle('ko',!ok);$('.v',row).textContent=ok?'Juste':'Faux';
+ if(ok){OKS.add(id);fb.hidden=true;fb.innerHTML=''}
+ else{OKS.delete(id);const t=document.getElementById(L.c),title=t?$('h3',t).textContent:'le cours';
+  fb.innerHTML='<div><strong>'+(L.years.length>1?bad.join(' et ')+' : ':'')+(nan?'saisis un nombre.':'ce n\'est pas ça.')+'</strong> '+esc(L.hint)+(L.pair?' Vérifie aussi la ligne jumelle de l\'autre colonne.':'')+'</div><div class="row"><button class="btn sm" data-go="'+L.c+'" data-from="'+id+'">Revoir le cours : '+esc(title)+'</button><button class="btn ghost sm" data-calc="'+id+'">Voir le calcul</button></div><div class="calc" hidden></div>';
+  fb.hidden=false}
+ if(!quiet)progress();return ok}
+function progress(){$$('.sheet').forEach(s=>{const pre=s.dataset.sheet,ids=Object.keys(LINES).filter(i=>LINES[i].pre===pre),n=ids.filter(i=>OKS.has(i)).length;$('#'+pre+'-prog').textContent=n+' / '+ids.length+' lignes justes'})}
+$('#casebody').addEventListener('click',e=>{const t=e.target;
+ if(t.dataset.val){validate(t.dataset.val);return}
+ if(t.dataset.all){Object.keys(LINES).filter(i=>LINES[i].pre===t.dataset.all).forEach(i=>validate(i,true));progress();const ko=$('.sheet[data-sheet="'+t.dataset.all+'"] .ln.ko');if(ko)ko.scrollIntoView({block:'center'});return}
+ if(t.dataset.go){goCourse(t.dataset.go,t.dataset.from);return}
+ if(t.dataset.calc){const L=LINES[t.dataset.calc],box=$('.calc',t.closest('.fb'));box.innerHTML=L.years.map((y,i)=>'<span>'+(L.years.length>1?y+' : ':'')+esc(L.calc(L.objs[i]))+'</span>').join('');box.hidden=!box.hidden;return}
+ if(t.id==='wipe'){if(t.dataset.sure){$$('#casebody input').forEach(i=>store.del('v:'+i.id));openCase(cur)}else{t.dataset.sure=1;t.textContent='Confirmer : tout effacer pour ce sujet'}}});
+function resetRow(id){const row=document.getElementById(id);if(!row)return;OKS.delete(id);row.classList.remove('ok','ko');$$('input',row).forEach(i=>i.classList.remove('ok','ko'));$('.v',row).textContent='Valider';const fb=$('.fb',row);fb.hidden=true;fb.innerHTML=''}
+$('#casebody').addEventListener('input',e=>{if(!e.target.matches('.ln input'))return;store.set('v:'+e.target.id,e.target.value);const id=e.target.closest('.ln').id,L=LINES[id];resetRow(id);if(L&&L.pair)resetRow(L.pre+'-'+L.pair.twin);progress()});
+$('#casebody').addEventListener('keydown',e=>{if(e.key!=='Enter'||!e.target.matches('.ln input'))return;const row=e.target.closest('.ln');if(validate(row.id)){const all=$$('#casebody .ln'),nx=all[all.indexOf(row)+1];if(nx)$('input',nx).focus()}});
+
+/* ---------- Tri ---------- */
+const TRI={bf:{cats:['Emplois stables','Ressources stables',"Actif circulant d'exploitation",'Actif circulant hors exploitation',"Passif circulant d'exploitation",'Passif circulant hors exploitation','Trésorerie active','Trésorerie passive'],items:[
+ ['Constructions (valeur brute)',0,'Toutes les immobilisations vont en emplois stables, pour leur valeur brute.'],
+ ['Participations et prêts',0,'Les immobilisations financières sont des emplois stables.'],
+ ['Fonds commercial',0,'Immobilisation incorporelle : emploi stable.'],
+ ['Amortissements des immobilisations',1,"L'actif est en brut ; les amortissements passent au passif, en ressources stables."],
+ ['Dépréciation des créances clients',1,"Toute la colonne « Amort & Prov » de l'actif rejoint les ressources stables, pas seulement celle des immobilisations."],
+ ["Résultat de l'exercice",1,'Il fait partie des capitaux propres.'],
+ ["Subventions d'investissement",1,'Elles figurent dans les capitaux propres.'],
+ ['Provisions pour risques et charges',1,"Elles s'ajoutent aux amortissements et provisions, en ressources stables."],
+ ['Emprunts auprès des établissements de crédit',1,'Dettes financières : ressources stables, après avoir retiré les concours bancaires courants.'],
+ ['Stocks de marchandises',2,"Les stocks sont au cœur du cycle d'exploitation."],
+ ['Créances clients (brut)',2,"Actif circulant d'exploitation, en valeur brute."],
+ ['Avances et acomptes versés sur commandes',2,"Versés à des fournisseurs d'exploitation : ligne « Autres » de l'actif circulant d'exploitation."],
+ ["Charges constatées d'avance, sans précision",2,"Par défaut, les CCA sont d'exploitation."],
+ ['CCA « à 100 % hors exploitation »',3,"Le renvoi du sujet prime. C'était le piège de l'examen 2025-2026."],
+ ['Valeurs mobilières de placement',3,"La grille de l'examen place la ligne VMP dans le hors exploitation."],
+ ['Dettes fournisseurs',4,"Passif circulant d'exploitation."],
+ ['Dettes fiscales et sociales',4,"Passif circulant d'exploitation."],
+ ["Produits constatés d'avance, sans précision",4,"Par défaut, les PCA sont d'exploitation."],
+ ['Dettes sur immobilisations',5,"Elles concernent l'investissement, pas le cycle d'exploitation."],
+ ['Part de PCA signalée « hors exploitation »',5,'On découpe la PCA : la part signalée va en hors exploitation, le reste en exploitation.'],
+ ['Disponibilités',6,'Banque et caisse : trésorerie active, en brut.'],
+ ['Concours bancaires courants',7,'Découverts : trésorerie passive. À retirer des emprunts quand un renvoi les signale.']]},
+caf:{cats:['Produit encaissé (+ méthode EBE)','Charge décaissée (− méthode EBE)','Charge calculée (+ méthode résultat)','Produit calculé (− méthode résultat)',"Déjà dans l'EBE"],items:[
+ ['Dotations aux amortissements',2,'Écriture comptable, aucun euro ne sort. On la rajoute au résultat.'],
+ ["Intérêts d'emprunt",1,'Charge financière réellement payée.'],
+ ['Impôt sur les bénéfices',1,"Décaissé, et il n'est pas dans l'EBE."],
+ ["Produit de cession d'un élément d'actif (PCEA)",3,"Exclu de la CAF car il relève de l'investissement : traité comme produit calculé."],
+ ['Valeur comptable des éléments cédés (VCEA)',2,'Charge sans décaissement : charge calculée.'],
+ ['Reprises sur amortissements et provisions',3,'Elles augmentent le résultat sans rien encaisser.'],
+ ["Quote-part de subvention d'investissement virée au résultat",3,'Produit non encaissable.'],
+ ["Autres produits d'exploitation",0,"Ils arrivent après l'EBE dans les SIG, et sont encaissés."],
+ ["Autres charges d'exploitation",1,"Elles arrivent après l'EBE, et sont décaissées."],
+ ['Produits exceptionnels sur opérations de gestion',0,'Encaissés. Les opérations en capital, elles, sont les cessions.'],
+ ['Charges exceptionnelles sur opérations de gestion',1,'Décaissées : amende, sinistre non couvert.'],
+ ['Salaires et charges sociales',4,"Déjà déduits pour obtenir l'EBE : on ne les reprend pas."],
+ ["Subvention d'exploitation",4,"Déjà ajoutée dans l'EBE."],
+ ['Dotation financière aux dépréciations',2,'Charge calculée : dans la méthode EBE, on ne retient que les charges financières hors dotations.'],
+ ['Participation des salariés',1,"Décaissée, après l'EBE."],
+ ['Intérêts reçus sur placements',0,'Produit financier encaissé.']]}};
+let tri;
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function triStart(m){tri={m,q:shuffle(TRI[m].items),i:0,ok:0};$$('#trimode button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m));triRender()}
+function triRender(){const b=$('#tribox'),T=TRI[tri.m];
+ if(tri.i>=tri.q.length){b.innerHTML='<h3>'+tri.ok+' bons classements sur '+tri.q.length+'</h3><div class="row"><button class="btn" id="triagain">Recommencer</button></div>';return}
+ const q=tri.q[tri.i];
+ b.innerHTML='<div class="bar"><i style="width:'+(100*tri.i/tri.q.length)+'%"></i></div><span class="muted">Poste '+(tri.i+1)+' sur '+tri.q.length+'</span><div class="item">'+esc(q[0])+'</div><div class="opts wrapx">'+T.cats.map((c,i)=>'<button class="opt" data-c="'+i+'">'+esc(c)+'</button>').join('')+'</div><div id="triwhy"></div>'}
+$('#tribox').addEventListener('click',e=>{if(e.target.id==='triagain'){triStart(tri.m);return}if(e.target.id==='trinext'){tri.i++;triRender();return}
+ const o=e.target.closest('.opt');if(!o||o.disabled)return;const q=tri.q[tri.i],c=+o.dataset.c;
+ $$('#tribox .opt').forEach(x=>{x.disabled=true;if(+x.dataset.c===q[1])x.classList.add('ok')});
+ if(c===q[1])tri.ok++;else o.classList.add('ko');
+ $('#triwhy').innerHTML='<div class="why"><strong>'+(c===q[1]?'Juste.':'Raté.')+'</strong> '+esc(q[2])+'</div><div class="row" style="margin-top:12px"><button class="btn" id="trinext">Suivant</button></div>';$('#trinext').focus()});
+$('#trimode').addEventListener('click',e=>{const b=e.target.closest('button');if(b)triStart(b.dataset.m)});
+
+/* ---------- Quiz ---------- */
+const QUIZ=[
+['Une boulangerie achète de la farine. Dans quel solde cette charge intervient-elle ?',['Marge commerciale','Valeur ajoutée','EBE',"Résultat d'exploitation"],1,"La farine est une matière première : consommation en provenance des tiers, donc valeur ajoutée."],
+["Achats de marchandises 165 071, variation de stocks −300. Coût d'achat des marchandises vendues ?",['165 371','164 771','165 071','300'],1,'On additionne avec le signe : 165 071 + (−300) = 164 771.'],
+['À quel étage les charges de personnel sont-elles déduites ?',['Valeur ajoutée','EBE',"Résultat d'exploitation",'RCAI'],1,"EBE = VA + subventions d'exploitation − impôts et taxes − charges de personnel."],
+["Quel solde ne dépend ni du mode de financement ni de la politique d'amortissement ?",['Résultat net',"Résultat d'exploitation",'EBE','RCAI'],2,"L'EBE est calculé avant amortissements, intérêts et éléments exceptionnels."],
+['Machine achetée 10 000, amortie 8 000, vendue 3 000. Plus-value ?',['3 000','2 000','1 000','−7 000'],2,'Valeur comptable = 2 000. Plus-value = 3 000 − 2 000 = 1 000.'],
+["Le prix de cession d'une machine (PCEA) dans le calcul de la CAF :",["Il s'ajoute, c'est un encaissement","Il est exclu, c'est de l'investissement","Il s'ajoute pour la moitié",'Il remplace la dotation'],1,"Le PCG l'exclut : sinon une entreprise afficherait une belle CAF en vendant son outil de travail."],
+["Résultat net 1 263 ; dotations d'exploitation 1 135 ; dotation financière 350 ; VCEA 250 ; reprises 612 ; PCEA 1 000. CAF ?",['1 386','2 386','2 998','1 036'],0,"1 263 + 1 135 + 350 + 250 − 612 − 1 000 = 1 386. C'est NAB'S BURGER en N."],
+['Charges financières : 550, dont 350 de dotations. Charges financières décaissées ?',['550','350','200','900'],2,'On retire les dotations, qui sont des charges calculées : 550 − 350 = 200.'],
+['Les deux méthodes de calcul de la CAF donnent des montants différents. Que conclure ?',["C'est normal",'Il y a une erreur de tri','La différence est le dividende','La différence est le BFR'],1,"Elles donnent toujours exactement le même montant : c'est un contrôle."],
+["La CAF, c'est :",['Le solde du compte en banque',"Un flux potentiel de trésorerie dégagé par l'activité",'Le résultat net moins les dividendes','La variation du BFR'],1,'Elle ignore les délais de paiement des clients et des fournisseurs.'],
+['Autofinancement =',['CAF − Dividendes','CAF + Dividendes','Résultat − Dividendes','EBE − Impôt'],0,'Ce qui reste de la CAF après rémunération des associés.'],
+["Dettes financières 12 474, CAF 1 386. Capacité d'endettement ?",['0,11 an, très bon','9 ans, au-delà du seuil de 3','9 ans, sous le seuil','3 ans'],1,'12 474 / 1 386 = 9. Les banques demandent moins de 3 années de CAF.'],
+['Dans le bilan fonctionnel, les immobilisations sont inscrites :',['En valeur nette','En valeur brute','À leur valeur de marché','Nettes des emprunts'],1,"Tout l'actif est en brut. Les amortissements et dépréciations vont en ressources stables."],
+["Où vont les amortissements et dépréciations de l'actif ?",['En moins des emplois stables','En ressources stables','En passif circulant','En trésorerie passive'],1,"Ils sont assimilés à de l'autofinancement, donc à des ressources stables."],
+['FRNG =',['Emplois stables − Ressources stables','Ressources stables − Emplois stables',"Actif circulant − Passif circulant d'exploitation",'Capitaux propres − Immobilisations nettes'],1,'Ressources stables − emplois stables.'],
+['FRNG 16 051, BFR 579. Trésorerie nette ?',['16 630','15 472','−15 472','579'],1,'TN = FRNG − BFR = 16 051 − 579 = 15 472.'],
+['Un renvoi indique « dont 11 240 de concours bancaires courants » dans les emprunts. En toute rigueur :',['On ne change rien','On les retire des dettes financières et on les met en trésorerie passive',"On les met en passif circulant d'exploitation",'On les ajoute aux capitaux propres'],1,'Un découvert est de la trésorerie passive. Le FRNG et la TN baissent du même montant.'],
+["Une dette envers un fournisseur d'immobilisations se classe en :",['Ressources stables',"Passif circulant d'exploitation",'Passif circulant hors exploitation','Trésorerie passive'],2,"Elle ne relève pas du cycle d'exploitation."],
+["Un restaurant rapide a un BFR négatif. C'est :",["Le signe d'une faillite proche",'Habituel : les clients paient comptant, les fournisseurs à crédit','Une erreur de calcul','Dû aux amortissements'],1,"Le cycle d'exploitation devient une ressource."],
+['FRNG négatif signifie que :',["L'entreprise est en perte",'Des immobilisations sont financées par des ressources à court terme','Le BFR est positif','La CAF est négative'],1,'Les ressources stables ne couvrent pas les emplois stables.'],
+["Production stockée de −22 300. Effet sur la production de l'exercice ?",["Elle l'augmente","Elle la diminue : c'est un déstockage",'Aucun effet','Elle va en marge commerciale'],1,"On a vendu plus que ce qu'on a produit."],
+["Le résultat est bénéficiaire mais le RCAI est négatif. D'où vient le bénéfice ?",["De l'exploitation",'Du résultat exceptionnel','Des amortissements','Du BFR'],1,"C'est le cas de COUVRE CHEF en N : RCAI −17 070, exceptionnel +21 712."],
+["Taux de valeur ajoutée faible. L'entreprise :",['Fait beaucoup en interne','Sous-traite ou revend beaucoup','Est très endettée',"N'a pas de salariés"],1,"VA / CA mesure le degré d'intégration."],
+['Rentabilité financière =',['EBE / CA','Résultat net / Capitaux propres','CAF / VA','EBE / Ressources stables'],1,'Elle mesure la rentabilité du point de vue des associés.'],
+['La dépréciation de 350 sur les disponibilités, dans le bilan fonctionnel :',['Diminue la trésorerie active','Va en ressources stables, la trésorerie reste en brut','Va en passif hors exploitation','Est ignorée'],1,'Trésorerie active = 15 472 en brut ; les 350 rejoignent les amortissements et provisions.'],
+["L'EBE est négatif (−8 942). Où l'inscrire à l'étage du résultat d'exploitation ?",['Nulle part','En Produits avec son signe moins, ou en Charges en positif (« Ou insuffisance brute »)','En Charges avec un signe moins','Dans les dotations'],1,'Les deux présentations donnent le même résultat d\'exploitation.']
+];
+let qz;
+function quizStart(){qz={q:shuffle(QUIZ),i:0,ok:0};quizRender()}
+function quizRender(){const b=$('#quizbox');
+ if(qz.i>=qz.q.length){b.innerHTML='<h3>'+qz.ok+' bonnes réponses sur '+qz.q.length+'</h3><div class="row"><button class="btn" id="qagain">Rejouer</button></div>';return}
+ const q=qz.q[qz.i];
+ b.innerHTML='<div class="bar"><i style="width:'+(100*qz.i/qz.q.length)+'%"></i></div><span class="muted">Question '+(qz.i+1)+' sur '+qz.q.length+' · '+qz.ok+' juste'+(qz.ok>1?'s':'')+'</span><h3>'+esc(q[0])+'</h3><div class="opts">'+q[1].map((o,i)=>'<button class="opt" data-c="'+i+'">'+esc(o)+'</button>').join('')+'</div><div id="qwhy"></div>'}
+$('#quizbox').addEventListener('click',e=>{if(e.target.id==='qagain'){quizStart();return}if(e.target.id==='qnext'){qz.i++;quizRender();return}
+ const o=e.target.closest('.opt');if(!o||o.disabled)return;const q=qz.q[qz.i],c=+o.dataset.c;
+ $$('#quizbox .opt').forEach(x=>{x.disabled=true;if(+x.dataset.c===q[2])x.classList.add('ok')});
+ if(c===q[2])qz.ok++;else o.classList.add('ko');
+ $('#qwhy').innerHTML='<div class="why"><strong>'+(c===q[2]?'Juste.':'Raté.')+'</strong> '+esc(q[3])+'</div><div class="row" style="margin-top:12px"><button class="btn" id="qnext">Suivant</button></div>';$('#qnext').focus()});
+
+/* ---------- Démarrage ---------- */
+const h0=location.hash.slice(1);
+show(TABS.includes(h0)?h0:(store.get('tab')||'exos'));
+const c0=store.get('case');openCase(CASES.some(c=>c.id===c0)?c0:'nabs');
+triStart('bf');quizStart();
+if(h0&&h0.startsWith('c-')){show('cours');flash(h0)}
+</script>
+
+</body>
+</html>
